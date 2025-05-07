@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <title>Add Game Data</title>
+    <script src="add.js"></script>
+  </head>
+  <body>
+    <form onsubmit="submitForm(event)">
+      <label>Date: <input type="date" id="date" required></label><br>
+
+      <label>Team:
+        <select id="team" required></select>
+      </label><br>
+
+      <label>Opponent:
+        <select id="opponent" required onchange="handleOpponentChange()">
+          <option value="Other">Other</option>
+        </select>
+      </label><br>
+
+      <div id="otherTeamContainer" style="display:none;">
+        <label>Other Team Name:
+          <input type="text" id="otherTeamName" placeholder="Enter opponent team name">
+        </label><br>
+      </div>
+
+      <label>Game Type:
+        <input type="radio" name="reg" value="Yes" checked> Regular
+        <input type="radio" name="reg" value="No"> Extra Time
+      </label><br>
+
+      <h3>Team Player Stats</h3>
+      <div id="teamPlayers"></div>
+
+      <div id="opponentPlayersContainer" style="display:none;">
+        <h3>Opponent Player Stats</h3>
+        <div id="opponentPlayers"></div>
+      </div>
+
+      <!-- Move Team Goals and Goals Conceded below player stats -->
+      <label>Team Goals: <input type="number" id="teamGoals" value="0" required readonly></label><br>
+      <label>Goals Conceded: <input type="number" id="goalsConceded" value="0" required readonly></label><br>
+
+      <button type="submit">Submit Game Data</button>
+    </form>
+  </body>
+</html>

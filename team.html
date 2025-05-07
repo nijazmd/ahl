@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Team Details</title>
+  <meta meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <script src="team.js" defer></script>
+</head>
+<body>
+  <h1>Team Details</h1>
+
+  <label>Select Team:
+    <select id="teamSelect" onchange="loadTeamData()"></select>
+  </label>
+
+  <div id="teamStatsContainer"></div>
+
+  <h2>Player Stats</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Player Name</th>
+        <th>Position</th>
+        <th>Goals</th>
+        <th>Assists</th>
+        <th>Plus/Minus</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody id="playerStatsTable"></tbody>
+  </table>
+
+  <h2>Recent Games</h2>
+  <div id="recentGamesContainer"></div>
+
+  <h2>Last 5 Games Summary</h2>
+  <div id="gameSummaryContainer" class="game-summary"></div>
+</body>
+</html>
