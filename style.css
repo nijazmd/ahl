@@ -1,0 +1,184 @@
+/* RESET + BASE */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0a0f1a;
+  color: #f0f4f8;
+  padding: 20px;
+  line-height: 1.5;
+}
+
+/* GLOBAL ELEMENT STYLES */
+a {
+  color: #4fc3f7;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1, h2, h3 {
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+/* TEAM SELECT DROPDOWN */
+#teamSelect {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background-color: #182335;
+  color: #ffffff;
+  border: 1px solid #3a4f66;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* STATS BOXES CONTAINER */
+#teamStatsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+#teamStatsContainer > div {
+  flex: 0 1 calc(50% - 8px);
+  background: linear-gradient(145deg, #162033, #1e2a42);
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  transition: transform 0.2s ease;
+}
+#teamStatsContainer > div:hover {
+  transform: translateY(-2px);
+}
+
+/* PLAYER STATS TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+  background-color: #15263f;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 14px;
+  text-align: center;
+  border-bottom: 1px solid #2a3c55;
+  font-size: 15px;
+}
+
+th {
+  background-color: #203352;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+td {
+  color: #e0e6ec;
+}
+
+/* RECENT GAMES CARDS */
+#recentGamesContainer {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recent-game {
+  background: linear-gradient(to right, #1a2b40, #24344d);
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+.recent-game div {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+/* GAME RESULT TAGS */
+#gameSummaryContainer {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.game-tag {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.game-tag.W {
+  background-color: #2ecc71;
+}
+
+.game-tag.WE {
+  background-color: #3498db;
+}
+
+.game-tag.L {
+  background-color: #e74c3c;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #111;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #333;
+  z-index: 100;
+}
+
+.bottom-nav .nav-icon {
+  color: #ccc;
+  font-size: 24px;
+  transition: color 0.2s ease;
+}
+
+.bottom-nav .nav-icon:hover,
+.bottom-nav .nav-icon.active {
+  color: #f39c12;
+}
+
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* For smooth scroll on mobile */
+  margin-bottom: 1rem;
+}
+
+.table-container table {
+  width: 100%;
+  min-width: 600px; /* or more if needed */
+  border-collapse: collapse;
+}
+
+.version {
+  font-size: 12px;
+  color: #2a3c55;
+}
