@@ -1,184 +1,208 @@
-/* RESET + BASE */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+:root {
+  --bg-dark: #0f1320;
+  --bg-card: #1c2030;
+  --text-main: #ffffff;
+  --text-secondary: #b0b5c2;
+  --highlight: #1f75fe;
+  --accent-green: #4caf50;
+  --accent-red: #f44336;
+  --accent-orange: #ff9800;
+  --border-color: #2a2e3f;
 }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #0a0f1a;
-  color: #f0f4f8;
-  padding: 20px;
-  line-height: 1.5;
-}
-
-/* GLOBAL ELEMENT STYLES */
-a {
-  color: #4fc3f7;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
+  margin: 0;
+  padding: 0 1rem 5rem;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow-x: hidden;
 }
 
 h1, h2, h3 {
-  color: #ffffff;
-  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.4em;
+  font-size: 1rem; /* small but styled */
+  border-left: 4px solid var(--highlight);
+  padding-left: 0.6em;
 }
 
-/* TEAM SELECT DROPDOWN */
-#teamSelect {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  background-color: #182335;
-  color: #ffffff;
-  border: 1px solid #3a4f66;
-  font-size: 16px;
-  margin-bottom: 20px;
+.page-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-/* STATS BOXES CONTAINER */
-#teamStatsContainer {
+.stat-card {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  padding: 0.7em 1em;
+  margin: 0.5em;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  display: inline-block;
+  width: calc(50% - 1em);
+  vertical-align: top;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  margin-top: 0.2rem;
+}
+
+.split-box,
+.split-columns {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 30px;
+  gap: 0.8em;
 }
 
-#teamStatsContainer > div {
-  flex: 0 1 calc(50% - 8px);
-  background: linear-gradient(145deg, #162033, #1e2a42);
-  padding: 16px;
+.home-away-box {
+  flex: 1 1 48%;
+  background-color: var(--bg-card);
+  padding: 1em;
   border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffffff;
-  transition: transform 0.2s ease;
-}
-#teamStatsContainer > div:hover {
-  transform: translateY(-2px);
 }
 
-/* PLAYER STATS TABLE */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 30px;
-  background-color: #15263f;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-th, td {
-  padding: 14px;
-  text-align: center;
-  border-bottom: 1px solid #2a3c55;
-  font-size: 15px;
-}
-
-th {
-  background-color: #203352;
-  color: #ffffff;
-  font-weight: bold;
-}
-
-td {
-  color: #e0e6ec;
-}
-
-/* RECENT GAMES CARDS */
-#recentGamesContainer {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.recent-game {
-  background: linear-gradient(to right, #1a2b40, #24344d);
-  padding: 14px 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-}
-
-.recent-game div {
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-
-/* GAME RESULT TAGS */
-#gameSummaryContainer {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  margin-bottom: 30px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.game-tag {
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 14px;
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-}
-
-.game-tag.W {
-  background-color: #2ecc71;
-}
-
-.game-tag.WE {
-  background-color: #3498db;
-}
-
-.game-tag.L {
-  background-color: #e74c3c;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background: #111;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top: 1px solid #333;
-  z-index: 100;
-}
-
-.bottom-nav .nav-icon {
-  color: #ccc;
-  font-size: 24px;
-  transition: color 0.2s ease;
-}
-
-.bottom-nav .nav-icon:hover,
-.bottom-nav .nav-icon.active {
-  color: #f39c12;
+.split-stats div {
+  margin: 0.3em 0;
+  font-size: 0.9rem;
 }
 
 .table-container {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* For smooth scroll on mobile */
-  margin-bottom: 1rem;
 }
 
-.table-container table {
+table {
   width: 100%;
-  min-width: 600px; /* or more if needed */
   border-collapse: collapse;
+  margin-top: 0.5em;
 }
 
-.version {
-  font-size: 12px;
-  color: #2a3c55;
+th, td {
+  padding: 0.6em;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+thead {
+  background-color: var(--bg-card);
+}
+
+tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+tr:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+a {
+  color: var(--highlight);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.recent-game {
+  background-color: var(--bg-card);
+  padding: 0.8em;
+  margin-bottom: 0.6em;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.result-tag {
+  padding: 0.3em 0.6em;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  display: inline-block;
+  margin-bottom: 0.3em;
+}
+
+.result-win { background-color: var(--accent-green); color: white; }
+.result-loss { background-color: var(--accent-red); color: white; }
+.result-etwin { background-color: var(--accent-orange); color: white; }
+
+.game-info {
+  margin-top: 0.4em;
+}
+
+.game-line {
+  font-size: 0.85rem;
+  margin-bottom: 0.2em;
+  color: var(--text-secondary);
+}
+
+.game-link a {
+  color: var(--highlight);
+  font-weight: bold;
+}
+
+select, input {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.4em;
+  border-radius: 6px;
+  margin-top: 0.3em;
+  width: 100%;
+}
+
+label {
+  font-size: 0.85rem;
+  margin-bottom: 0.3em;
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+form > div {
+  width: calc(50% - 0.5em);
+}
+
+/* Bottom Nav Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--bg-card);
+  display: flex;
+  justify-content: space-around;
+  padding: 0.6em 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.bottom-nav a {
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+.bottom-nav a.active {
+  color: var(--highlight);
+}
+
+/* Hide scrollbars but keep scrolling */
+.table-container::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.table-container, body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

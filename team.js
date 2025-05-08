@@ -48,6 +48,14 @@ function loadTeamData() {
     recent: []
   };
 
+  const homeStats = {
+    games: 0, wins: 0, regWins: 0, etWins: 0, losses: 0, goals: 0, conceded: 0
+  };
+  const awayStats = {
+    games: 0, wins: 0, regWins: 0, etWins: 0, losses: 0, goals: 0, conceded: 0
+  };
+  
+
   const recentGames = [];
 
   allGames.forEach(game => {
@@ -65,15 +73,29 @@ function loadTeamData() {
       teamStats.goals += teamGoals;
       teamStats.conceded += goalsConceded;
 
+      const target = isHome ? homeStats : awayStats;
+      target.games++;
+      target.goals += teamGoals;
+      target.conceded += goalsConceded;
+
+
       if (result === "W") {
         teamStats.wins++;
         teamStats.regWins++;
+        target.wins++;
+        target.regWins++;
       } else if (result === "WE") {
         teamStats.wins++;
         teamStats.etWins++;
+        target.wins++;
+        target.etWins++;
       } else {
         teamStats.losses++;
+        target.losses++;
       }
+      
+      
+      
 
       recentGames.push({
         GameID: game.GameID,
@@ -108,6 +130,55 @@ function loadTeamData() {
     <div><strong>Win %:</strong> ${winPct}%</div>
     <div><strong>Regular Time Win %:</strong> ${regWinPct}%</div>
   `;
+
+  const homeGD = homeStats.goals - homeStats.conceded;
+const awayGD = awayStats.goals - awayStats.conceded;
+const homeAvgGoals = homeStats.games ? (homeStats.goals / homeStats.games).toFixed(2) : "0.00";
+const awayAvgGoals = awayStats.games ? (awayStats.goals / awayStats.games).toFixed(2) : "0.00";
+const homeAvgConceded = homeStats.games ? (homeStats.conceded / homeStats.games).toFixed(2) : "0.00";
+const awayAvgConceded = awayStats.games ? (awayStats.conceded / awayStats.games).toFixed(2) : "0.00";
+
+
+const homeAwayHTML = `
+  <div class="split-columns">
+    <div class="home-away-box">
+      <h3>Home Performance</h3>
+      <div class="split-stats">
+        <div><strong>Games:</strong> ${homeStats.games}</div>
+        <div><strong>Wins:</strong> ${homeStats.wins}</div>
+        <div><strong>Reg Wins:</strong> ${homeStats.regWins}</div>
+        <div><strong>ET Wins:</strong> ${homeStats.etWins}</div>
+        <div><strong>Losses:</strong> ${homeStats.losses}</div>
+        <div><strong>Goals:</strong> ${homeStats.goals}</div>
+        <div><strong>Conceded:</strong> ${homeStats.conceded}</div>
+        <div><strong>Goal Diff:</strong> ${homeGD}</div>
+        <div><strong>Avg Goals:</strong> ${homeAvgGoals}</div>
+        <div><strong>Avg Conceded:</strong> ${homeAvgConceded}</div>
+      </div>
+    </div>
+
+    <div class="home-away-box">
+      <h3>Away Performance</h3>
+      <div class="split-stats">
+        <div><strong>Games:</strong> ${awayStats.games}</div>
+        <div><strong>Wins:</strong> ${awayStats.wins}</div>
+        <div><strong>Reg Wins:</strong> ${awayStats.regWins}</div>
+        <div><strong>ET Wins:</strong> ${awayStats.etWins}</div>
+        <div><strong>Losses:</strong> ${awayStats.losses}</div>
+        <div><strong>Goals:</strong> ${awayStats.goals}</div>
+        <div><strong>Conceded:</strong> ${awayStats.conceded}</div>
+        <div><strong>Goal Diff:</strong> ${awayGD}</div>
+        <div><strong>Avg Goals:</strong> ${awayAvgGoals}</div>
+        <div><strong>Avg Conceded:</strong> ${awayAvgConceded}</div>
+      </div>
+    </div>
+  </div>
+`;
+
+
+
+container.innerHTML += homeAwayHTML;
+
 
   // --- PLAYER STATS ---
   const tableBody = document.getElementById("playerStatsTable");
@@ -159,16 +230,37 @@ function loadTeamData() {
 
   recentGames.slice(0, 5).forEach(game => {
     const gameDiv = document.createElement("div");
-    gameDiv.className = "recent-game";
+    gameDiv.className = "recent-game-card";
+  
+    // Format result text and color
+    let resultText = "";
+    let resultClass = "";
+  
+    if (game.result === "W") {
+      resultText = "W";
+      resultClass = "win";
+    } else if (game.result === "WE") {
+      resultText = `W<span class="extra-time">(e)</span>`;
+      resultClass = "we";
+    } else {
+      resultText = "L";
+      resultClass = "loss";
+    }
+  
     gameDiv.innerHTML = `
-      <div><strong>Date:</strong> ${game.date}</div>
-      <div><strong>Opponent:</strong> ${game.opponent}</div>
-      <div><strong>Result:</strong> ${game.result}</div>
-      <div><strong>Score:</strong> ${game.teamGoals} - ${game.goalsConceded}</div>
-      <div><a href="game.html?id=${game.GameID}">View</a></div>
+      <div class="result-tag ${resultClass}">${resultText}</div>
+      <div class="game-info">
+        <div class="game-line">📅 ${game.date}</div>
+        <div class="game-line">🆚 ${game.opponent}</div>
+        <div class="game-line">🏒 ${game.teamGoals} - ${game.goalsConceded}</div>
+        <div class="game-link"><a href="game.html?id=${game.GameID}">🔍 View</a></div>
+      </div>
     `;
+  
     recentGamesContainer.appendChild(gameDiv);
   });
+  
+  
 
   // --- LAST 5 GAME SUMMARY ---
   const summaryContainer = document.getElementById("gameSummaryContainer");
