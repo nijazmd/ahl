@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbxZgB9L1yZWjXTAuqJb1zzTnE74WRRYufPquzsmkWfTEMVjfVmCnhRAeBY3eJY5FOG0lQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyAQ6CT2FCud7g3wX4Huaz1lDydreoBtp3AgbuMCxv0fdDWX-oRvLPNZ47puHpwk7vlog/exec";
 
 async function loadGames() {
   try {
@@ -14,52 +14,49 @@ function renderStandings(games) {
   const standings = {};
 
   games.forEach(game => {
-    const { Team, OpponentTeamName, OpponentType, TeamGoals, GoalsConceded, RegularTime } = game;
+    const {
+      Team,
+      OpponentTeamName,
+      OpponentType,
+      TeamGoals,
+      GoalsConceded,
+      TeamPoints,
+      OpponentPoints
+    } = game;
+
     const teamGoals = parseInt(TeamGoals || 0);
     const goalsConceded = parseInt(GoalsConceded || 0);
+    const teamPoints = parseInt(TeamPoints || 0);
+    const opponentPoints = parseInt(OpponentPoints || 0);
 
-    // Initialize standings for the team if not already present
+    // Team
     if (!standings[Team]) {
       standings[Team] = { points: 0, games: 0, goals: 0, conceded: 0 };
     }
     standings[Team].games++;
+    standings[Team].points += teamPoints;
     standings[Team].goals += teamGoals;
     standings[Team].conceded += goalsConceded;
 
-    // Update opponent team (if tracked)
+    // Tracked Opponent
     if (OpponentType === "Tracked") {
-      if (!standings[OpponentTeamName]) {
-        standings[OpponentTeamName] = { points: 0, games: 0, goals: 0, conceded: 0 };
+      const opp = OpponentTeamName;
+      if (!standings[opp]) {
+        standings[opp] = { points: 0, games: 0, goals: 0, conceded: 0 };
       }
-      standings[OpponentTeamName].games++;
-      standings[OpponentTeamName].goals += goalsConceded;
-      standings[OpponentTeamName].conceded += teamGoals;
-    }
-
-    // Calculate points based on game result
-    if (RegularTime === "Yes") {
-      // Win in regular time (2 points for the winner)
-      if (teamGoals > goalsConceded) {
-        standings[Team].points += 2;  // Win
-      } else if (teamGoals < goalsConceded) {
-        standings[OpponentTeamName].points += 2;  // Opponent win
-      }
-    } else {
-      // Win in extra time (1 point for the winner)
-      if (teamGoals > goalsConceded) {
-        standings[Team].points += 1;  // Win
-      } else {
-        standings[OpponentTeamName].points += 1;  // Opponent win
-      }
+      standings[opp].games++;
+      standings[opp].points += opponentPoints;
+      standings[opp].goals += goalsConceded;
+      standings[opp].conceded += teamGoals;
     }
   });
 
-  // Calculate goal difference for each team
+  // Add goal difference
   Object.values(standings).forEach(teamStats => {
     teamStats.goalDifference = teamStats.goals - teamStats.conceded;
   });
 
-  // Convert standings object to an array and sort based on points and goal difference
+  // Convert to array and sort
   const standingsArray = Object.entries(standings).map(([team, stats]) => ({
     team,
     ...stats
@@ -67,13 +64,13 @@ function renderStandings(games) {
 
   standingsArray.sort((a, b) => {
     if (b.points !== a.points) {
-      return b.points - a.points;  // Sort by points descending
+      return b.points - a.points;
     } else {
-      return b.goalDifference - a.goalDifference;  // Sort by goal difference descending
+      return b.goalDifference - a.goalDifference;
     }
   });
 
-  // Render the standings table
+  // Render
   const tbody = document.querySelector("#standingsTable tbody");
   tbody.innerHTML = "";
 

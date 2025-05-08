@@ -29,9 +29,11 @@
       </div>
 
       <label>Game Type:
-        <input type="radio" name="reg" value="Yes" checked> Regular
-        <input type="radio" name="reg" value="No"> Extra Time
+        <input type="radio" name="reg" value="Regular" checked> Regular
+        <input type="radio" name="reg" value="ExtraTime"> Extra Time
+        <input type="radio" name="reg" value="Shootout"> Shootout
       </label><br>
+      
 
       <h3>Team Player Stats</h3>
       <div id="teamPlayers"></div>
@@ -42,8 +44,24 @@
       </div>
 
       <!-- Move Team Goals and Goals Conceded below player stats -->
-      <label>Team Goals: <input type="number" id="teamGoals" value="0" required readonly></label><br>
-      <label>Goals Conceded: <input type="number" id="goalsConceded" value="0" required readonly></label><br>
+      <label>Team Goals: <input type="number" id="teamGoals" value="0" required ></label><br>
+      <label>Goals Conceded: <input type="number" id="goalsConceded" value="0" required ></label><br>
+
+      <div id="shootoutStats" style="display:none;">
+        <label>Team Shootout Attempts:
+          <input type="number" id="teamShootOutAttempts" value="0">
+        </label><br>
+        <label>Team Shootout Goals:
+          <input type="number" id="teamSOGoals" value="0">
+        </label><br>
+        <label>Opponent Shootout Attempts:
+          <input type="number" id="oppShootOutAttempts" value="0">
+        </label><br>
+        <label>Opponent Shootout Goals:
+          <input type="number" id="oppSOGoals" value="0">
+        </label><br>
+      </div>
+      
 
       <button type="submit">Submit Game Data</button>
     </form>

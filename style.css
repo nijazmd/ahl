@@ -1,208 +1,214 @@
-:root {
-  --bg-dark: #0f1320;
-  --bg-card: #1c2030;
-  --text-main: #ffffff;
-  --text-secondary: #b0b5c2;
-  --highlight: #1f75fe;
-  --accent-green: #4caf50;
-  --accent-red: #f44336;
-  --accent-orange: #ff9800;
-  --border-color: #2a2e3f;
+
+/* GENERAL RESET AND MOBILE OPTIMIZATION */
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 0 1rem 5rem;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg-dark);
-  color: var(--text-main);
-  overflow-x: hidden;
+  padding: 1.5rem;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0f172a; /* deep indigo */
+  color: #f1f5f9;
+  font-size: 15px;
+  padding-bottom: 70px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:visited {
+  color: inherit;
+  text-decoration: none;
 }
 
 h1, h2, h3 {
+  font-size: 16px;
   font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 0.4em;
-  font-size: 1rem; /* small but styled */
-  border-left: 4px solid var(--highlight);
-  padding-left: 0.6em;
+  margin: 1.5rem 0 1rem;
+  color: #e2e8f0;
 }
 
-.page-container {
-  max-width: 800px;
-  margin: 0 auto;
+label, select {
+  display: block;
+  margin: 1rem 0;
+  font-size: 14px;
 }
 
-.stat-card {
-  background-color: var(--bg-card);
-  color: var(--text-main);
-  padding: 0.7em 1em;
-  margin: 0.5em;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  display: inline-block;
-  width: calc(50% - 1em);
-  vertical-align: top;
+select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: #f8fafc;
 }
 
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.stat-value {
-  font-size: 1.2rem;
-  margin-top: 0.2rem;
-}
-
-.split-box,
-.split-columns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8em;
-}
-
-.home-away-box {
-  flex: 1 1 48%;
-  background-color: var(--bg-card);
-  padding: 1em;
-  border-radius: 12px;
-}
-
-.split-stats div {
-  margin: 0.3em 0;
-  font-size: 0.9rem;
-}
-
+/* TABLES */
 .table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 2rem;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 0.5em;
+  background: #1e293b;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 th, td {
-  padding: 0.6em;
-  text-align: left;
-  font-size: 0.9rem;
+  padding: 0.8rem;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid #334155;
 }
 
-thead {
-  background-color: var(--bg-card);
+th {
+  background: #1e293b;
+  color: #94a3b8;
 }
 
-tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.03);
+td {
+  color: #f8fafc;
 }
 
-tr:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-a {
-  color: var(--highlight);
+a.team-link {
+  color: #60a5fa;
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;
+/* STAT CARDS */
+.stat-card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  flex: 1 1 45%;
+  max-width: 48%;
+}
+
+.stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+/* PLAYER SECTIONS */
+.split-box {
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
 }
 
 .recent-game {
-  background-color: var(--bg-card);
-  padding: 0.8em;
-  margin-bottom: 0.6em;
+  background: #1e293b;
+  margin: 0.5rem 0;
+  padding: 0.8rem;
   border-radius: 10px;
-  font-size: 0.9rem;
+  color: #f8fafc;
 }
 
-.result-tag {
-  padding: 0.3em 0.6em;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 0.8rem;
-  display: inline-block;
-  margin-bottom: 0.3em;
-}
-
-.result-win { background-color: var(--accent-green); color: white; }
-.result-loss { background-color: var(--accent-red); color: white; }
-.result-etwin { background-color: var(--accent-orange); color: white; }
-
-.game-info {
-  margin-top: 0.4em;
-}
-
-.game-line {
-  font-size: 0.85rem;
-  margin-bottom: 0.2em;
-  color: var(--text-secondary);
-}
-
-.game-link a {
-  color: var(--highlight);
-  font-weight: bold;
-}
-
-select, input {
-  background-color: var(--bg-card);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  padding: 0.4em;
-  border-radius: 6px;
-  margin-top: 0.3em;
-  width: 100%;
-}
-
-label {
-  font-size: 0.85rem;
-  margin-bottom: 0.3em;
-  display: block;
-}
-
-form {
+/* GAME SUMMARY TAGS */
+.game-summary {
   display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
   flex-wrap: wrap;
-  gap: 1em;
 }
 
-form > div {
-  width: calc(50% - 0.5em);
+.game-tag {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  color: white;
+  background: #334155;
 }
 
-/* Bottom Nav Bar */
+.game-tag.W {
+  background-color: #22c55e;
+}
+
+.game-tag.WE {
+  background-color: #4ade80;
+}
+
+.game-tag.L {
+  background-color: #ef4444;
+}
+
+.extra-time {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* NAVIGATION */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: var(--bg-card);
+  background: #0f172a;
   display: flex;
   justify-content: space-around;
-  padding: 0.6em 0;
-  border-top: 1px solid var(--border-color);
+  padding: 0.6rem 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
 }
 
-.bottom-nav a {
-  color: var(--text-secondary);
+.nav-icon {
+  color: #f8fafc;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+/* PLAYER NAME + TEAM INFO */
+.player-name, .team-name, .player-position {
+  font-size: 20px;
+  font-weight: bold;
+  color: #e2e8f0;
+  margin: 0.5rem 0;
   text-align: center;
-  font-size: 1.4rem;
 }
 
-.bottom-nav a.active {
-  color: var(--highlight);
+/* SPLIT HOME-AWAY LAYOUT */
+.split-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-/* Hide scrollbars but keep scrolling */
+.home-away-box {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* VERSION */
+.version {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* SCROLLBAR HIDE BUT SCROLL ENABLE */
 .table-container::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none;
-}
-
-.table-container, body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }

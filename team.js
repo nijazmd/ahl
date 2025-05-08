@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbxZgB9L1yZWjXTAuqJb1zzTnE74WRRYufPquzsmkWfTEMVjfVmCnhRAeBY3eJY5FOG0lQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyAQ6CT2FCud7g3wX4Huaz1lDydreoBtp3AgbuMCxv0fdDWX-oRvLPNZ47puHpwk7vlog/exec";
 
 let allGames = [];
 let allPlayers = [];
@@ -35,6 +35,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadTeamData();
 });
 
+let cleanSheets = 0;
+let noGoals = 0;
+
+let shootoutAttempts = 0;
+let shootoutGoals = 0;
+let oppShootoutAttempts = 0;
+let oppShootoutGoals = 0;
+
+
 function loadTeamData() {
   const team = document.getElementById("teamSelect").value;
   const teamStats = {
@@ -64,10 +73,15 @@ function loadTeamData() {
 
     if (isTeam || isOpponent) {
       const isHome = isTeam;
+      
       const teamGoals = parseInt(isHome ? game.TeamGoals : game.GoalsConceded);
       const goalsConceded = parseInt(isHome ? game.GoalsConceded : game.TeamGoals);
-      const regular = game.RegularTime === "Yes";
-      const result = teamGoals > goalsConceded ? (regular ? "W" : "WE") : "L";
+      const gameType = game.GameType;
+      let result = "L";
+      if (teamGoals > goalsConceded) {
+        result = gameType === "Regular" ? "W" : "WE";
+      }
+      
 
       teamStats.games++;
       teamStats.goals += teamGoals;
@@ -105,6 +119,18 @@ function loadTeamData() {
         teamGoals,
         goalsConceded
       });
+
+            // Count clean sheets and no goals (only for home games)
+            if (isTeam) {
+              if (Number(game.GoalsConceded) === 0) cleanSheets++;
+              if (Number(game.TeamGoals) === 0) noGoals++;
+      
+              shootoutAttempts += Number(game.ShootoutAttempts || 0);
+              shootoutGoals += Number(game.ShootoutGoals || 0);
+              oppShootoutAttempts += Number(game.OpponentShootoutAttempts || 0);
+              oppShootoutGoals += Number(game.OpponentShootoutGoals || 0);
+            }
+      
     }
   });
 
@@ -119,7 +145,7 @@ function loadTeamData() {
   container.innerHTML = `
     <div><strong>Games Played:</strong> ${teamStats.games}</div>
     <div><strong>Wins:</strong> ${teamStats.wins}</div>
-    <div><strong>Regular Wins:</strong> ${teamStats.regWins}</div>
+    <div><strong>Regulation Wins:</strong> ${teamStats.regWins}</div>
     <div><strong>Extra Time Wins:</strong> ${teamStats.etWins}</div>
     <div><strong>Losses:</strong> ${teamStats.losses}</div>
     <div><strong>Goals Scored:</strong> ${teamStats.goals}</div>
@@ -128,7 +154,7 @@ function loadTeamData() {
     <div><strong>Average Goals/Game:</strong> ${avgGoals}</div>
     <div><strong>Average Goals Conceded/Game:</strong> ${avgConceded}</div>
     <div><strong>Win %:</strong> ${winPct}%</div>
-    <div><strong>Regular Time Win %:</strong> ${regWinPct}%</div>
+    <div><strong>Regulation Time Win %:</strong> ${regWinPct}%</div>
   `;
 
   const homeGD = homeStats.goals - homeStats.conceded;
@@ -179,6 +205,20 @@ const homeAwayHTML = `
 
 container.innerHTML += homeAwayHTML;
 
+const shootoutGoalPct = shootoutAttempts ? ((shootoutGoals / shootoutAttempts) * 100).toFixed(1) : "0.0";
+const denialPct = oppShootoutAttempts ? (((oppShootoutAttempts - oppShootoutGoals) / oppShootoutAttempts) * 100).toFixed(1) : "0.0";
+
+const advancedStatsContainer = document.getElementById("teamAdvancedStats");
+advancedStatsContainer.innerHTML = `
+  <div class="stat-card"><div class="stat-label">Clean Sheets</div><div class="stat-value">${cleanSheets}</div></div>
+  <div class="stat-card"><div class="stat-label">No Goals</div><div class="stat-value">${noGoals}</div></div>
+  <div class="stat-card"><div class="stat-label">Shootout Attempts</div><div class="stat-value">${shootoutAttempts}</div></div>
+  <div class="stat-card"><div class="stat-label">Shootout Goals</div><div class="stat-value">${shootoutGoals}</div></div>
+  <div class="stat-card"><div class="stat-label">Opponent Goals</div><div class="stat-value">${oppShootoutGoals}</div></div>
+  <div class="stat-card"><div class="stat-label">Goal %</div><div class="stat-value">${shootoutGoalPct}%</div></div>
+  <div class="stat-card"><div class="stat-label">Denial %</div><div class="stat-value">${denialPct}%</div></div>
+`;
+
 
   // --- PLAYER STATS ---
   const tableBody = document.getElementById("playerStatsTable");
@@ -189,11 +229,10 @@ container.innerHTML += homeAwayHTML;
     if (stat.Team !== team) return;
     const pid = stat.PlayerID;
     if (!playerStatsMap[pid]) {
-      playerStatsMap[pid] = { goals: 0, assists: 0, plus: 0 };
+      playerStatsMap[pid] = { goals: 0, assists: 0 };
     }
     playerStatsMap[pid].goals += Number(stat.Goals || 0);
     playerStatsMap[pid].assists += Number(stat.Assists || 0);
-    playerStatsMap[pid].plus += Number(stat.PlusMinus || 0);
   });
 
   const players = allPlayers.filter(p => p.Team === team);
@@ -205,7 +244,6 @@ container.innerHTML += homeAwayHTML;
       position: p.PositionMain || "-",
       goals: stats.goals,
       assists: stats.assists,
-      plus: stats.plus,
       points: stats.goals + stats.assists
     };
   });
@@ -217,7 +255,6 @@ container.innerHTML += homeAwayHTML;
       <td>${p.position}</td>
       <td>${p.goals}</td>
       <td>${p.assists}</td>
-      <td>${p.plus}</td>
       <td>${p.points}</td>
     </tr>`;
     tableBody.innerHTML += row;

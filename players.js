@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbxZgB9L1yZWjXTAuqJb1zzTnE74WRRYufPquzsmkWfTEMVjfVmCnhRAeBY3eJY5FOG0lQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyAQ6CT2FCud7g3wX4Huaz1lDydreoBtp3AgbuMCxv0fdDWX-oRvLPNZ47puHpwk7vlog/exec";
 
 let allPlayers = [];
 let playerStats = [];
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const aggregated = aggregateStats(allPlayers, playerStats);
   renderTable(aggregated);
-  sortTableByColumn(5); // Default: sort by Points
+  sortTableByColumn(4); // Default: sort by Points
 });
 
 // Combine player info and their stats
@@ -27,22 +27,20 @@ function aggregateStats(players, stats) {
   stats.forEach(row => {
     const id = row.PlayerID;
     if (!statMap[id]) {
-      statMap[id] = { goals: 0, assists: 0, plus: 0 };
+      statMap[id] = { goals: 0, assists: 0 };
     }
     statMap[id].goals += Number(row.Goals || 0);
     statMap[id].assists += Number(row.Assists || 0);
-    statMap[id].plus += Number(row.PlusMinus || 0);
   });
 
   return players.map(p => {
-    const s = statMap[p.PlayerID] || { goals: 0, assists: 0, plus: 0 };
+    const s = statMap[p.PlayerID] || { goals: 0, assists: 0 };
     return {
       id: p.PlayerID,
       name: p.PlayerName,
       team: p.Team,
       goals: s.goals,
       assists: s.assists,
-      plus: s.plus,
       points: s.goals + s.assists
     };
   });
@@ -59,7 +57,6 @@ function renderTable(data) {
       <td>${p.team}</td>
       <td>${p.goals}</td>
       <td>${p.assists}</td>
-      <td>${p.plus}</td>
       <td>${p.points}</td>
     `;
     tbody.appendChild(row);
