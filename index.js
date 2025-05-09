@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbyAQ6CT2FCud7g3wX4Huaz1lDydreoBtp3AgbuMCxv0fdDWX-oRvLPNZ47puHpwk7vlog/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyZ7XbB0T5xsrPKYJ_3vV5u3-k1hw9j_AK2Tp2cHXqBplsnbEtBMETGx8Vsft-_cfRU/exec";
 
 async function loadGames() {
   try {
@@ -87,5 +87,56 @@ function renderStandings(games) {
   });
 }
 
-
 loadGames();
+
+
+async function loadGames() {
+  try {
+    const response = await fetch(scriptURL + "?action=loadGames");
+    const games = await response.json();
+    renderStandings(games);
+    renderLast5Games(games);  // ✅ Moved here so it has access to `games`
+  } catch (err) {
+    console.error("Failed to load games:", err);
+  }
+}
+
+function renderLast5Games(games) {
+  const container = document.getElementById("last5GamesContainer");
+  container.innerHTML = "";
+
+  // Sort games by date descending
+  const sortedGames = [...games].sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+  sortedGames.slice(0, 5).forEach(game => {
+    const teamName = game.Team;
+    const opponentName = game.OpponentTeamName;
+    const teamGoals = Number(game.TeamGoals || 0);
+    const goalsConceded = Number(game.GoalsConceded || 0);
+    const gameType = game.GameType;
+
+    let result = "L";
+    if (teamGoals > goalsConceded) {
+      result = gameType === "Shootout" || gameType === "ExtraTime" ? "WE" : "W";
+    }
+
+    let resultClass = result === "W" ? "win" : result === "WE" ? "we" : "loss";
+    let resultText = result === "WE" ? `W<span class="extra-time">(e)</span>` : result;
+
+    const card = document.createElement("div");
+    card.className = "recent-game-card";
+
+    card.innerHTML = `
+      <div class="result-tag ${resultClass}">${resultText}</div>
+      <div class="game-info">
+        <div class="game-line">📅 ${game.Date}</div>
+        <div class="game-line">🆚 ${opponentName}</div>
+        <div class="game-line">🏒 ${teamGoals} - ${goalsConceded}</div>
+        <div class="game-link"><a href="game.html?id=${game.GameID}">🔍 View</a></div>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+

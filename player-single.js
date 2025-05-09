@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbyAQ6CT2FCud7g3wX4Huaz1lDydreoBtp3AgbuMCxv0fdDWX-oRvLPNZ47puHpwk7vlog/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyZ7XbB0T5xsrPKYJ_3vV5u3-k1hw9j_AK2Tp2cHXqBplsnbEtBMETGx8Vsft-_cfRU/exec";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -120,13 +120,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     ? ((shootoutStats.goals / shootoutStats.attempts) * 100).toFixed(1)
     : "0.0";
 
-  const shootoutDiv = document.createElement("div");
-  shootoutDiv.className = "shootout-stats";
-  shootoutDiv.innerHTML = `
-    <h3>Shootout Stats</h3>
-    <div class="stat-card"><div class="stat-label">Attempts</div><div class="stat-value">${shootoutStats.attempts}</div></div>
-    <div class="stat-card"><div class="stat-label">Goals</div><div class="stat-value">${shootoutStats.goals}</div></div>
-    <div class="stat-card"><div class="stat-label">Goal %</div><div class="stat-value">${shootoutGoalPct}%</div></div>
-  `;
-  document.body.appendChild(shootoutDiv);
+    const shootoutDiv = document.createElement("div");
+    shootoutDiv.innerHTML = `
+      <h3>Shootout Stats</h3>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Attempts</div>
+          <div class="stat-value">${shootoutStats.attempts}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Goals</div>
+          <div class="stat-value">${shootoutStats.goals}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Goal %</div>
+          <div class="stat-value">${shootoutGoalPct}%</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(shootoutDiv);
+    
 });

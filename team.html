@@ -12,7 +12,8 @@
   <h1>Team Details</h1>
 
   <label>Select Team:
-    <select id="teamSelect" onchange="loadTeamData()"></select>
+    <div id="teamRadioContainer" class="team-radio-group"></div>
+
   </label>
 
   <div id="teamStatsContainer"></div>
@@ -34,7 +35,6 @@
             <th>Position</th>
             <th>Goals</th>
             <th>Assists</th>
-            <th>Plus/Minus</th>
             <th>Points</th>
           </tr>
         </thead>
@@ -51,10 +51,10 @@
 
 
   <nav class="bottom-nav">
-    <a href="index.html" class="nav-icon"><i class="fas fa-home"></i></a>
-    <a href="team.html" class="nav-icon"><i class="fas fa-users"></i></a>
-    <a href="players.html" class="nav-icon"><i class="fas fa-hockey-puck"></i></a>
-    <a href="add.html" class="nav-icon"><i class="fas fa-plus-circle"></i></a>
+    <a href="index.html" class="nav-icon">🏠</a>
+    <a href="team.html" class="nav-icon">🛡️</a>
+    <a href="players.html" class="nav-icon">🏒</a>
+    <a href="add.html" class="nav-icon">➕</a>
   </nav>
   
 </body>

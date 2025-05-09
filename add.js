@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbyAQ6CT2FCud7g3wX4Huaz1lDydreoBtp3AgbuMCxv0fdDWX-oRvLPNZ47puHpwk7vlog/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyZ7XbB0T5xsrPKYJ_3vV5u3-k1hw9j_AK2Tp2cHXqBplsnbEtBMETGx8Vsft-_cfRU/exec";
 
 const POINTS_CONFIG = {
   RegulationWin: 2,
@@ -23,8 +23,12 @@ window.onload = async () => {
     radio.addEventListener('change', () => {
       const isShootout = document.querySelector('input[name="reg"]:checked').value === "Shootout";
       document.getElementById("shootoutStats").style.display = isShootout ? "block" : "none";
+      populatePlayerInputs(); // ✅ re-render team
+      handleOpponentChange(); // ✅ re-render opponent
     });
   });
+  
+  
 
   // Set today's date as default
   const today = new Date().toISOString().split("T")[0];
@@ -65,20 +69,43 @@ function populateTeamDropdowns() {
 }
 
 // Function to render players in the selected team or opponent team
+// function renderPlayers(playersList, containerId, prefix) {
+//   const container = document.getElementById(containerId);
+//   container.innerHTML = "";
+
+//   playersList.forEach(p => {
+//     const div = document.createElement("div");
+//     div.innerHTML = `
+//       <strong>${p.PlayerName}</strong> (ID: ${p.PlayerID})<br>
+//       Goals: <input type="number" value="0" id="${prefix}_g_${p.PlayerID}" oninput="updateGoals()">
+//       Assists: <input type="number"  value="0" id="${prefix}_a_${p.PlayerID}">
+//       <br><br>`;
+//     container.appendChild(div);
+//   });
+// }
 function renderPlayers(playersList, containerId, prefix) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
+
+  const isShootout = document.querySelector('input[name="reg"]:checked')?.value === "Shootout";
 
   playersList.forEach(p => {
     const div = document.createElement("div");
     div.innerHTML = `
       <strong>${p.PlayerName}</strong> (ID: ${p.PlayerID})<br>
       Goals: <input type="number" value="0" id="${prefix}_g_${p.PlayerID}" oninput="updateGoals()">
-      Assists: <input type="number"  value="0" id="${prefix}_a_${p.PlayerID}">
-      <br><br>`;
+      Assists: <input type="number" value="0" id="${prefix}_a_${p.PlayerID}"><br>
+      ${isShootout ? `
+        Shootout Attempt? <input type="checkbox" id="${prefix}_so_${p.PlayerID}" onchange="toggleSO(${p.PlayerID}, '${prefix}')">
+        <span id="${prefix}_goal_label_${p.PlayerID}" style="display:none">
+          Goal Scored? <input type="checkbox" id="${prefix}_so_goal_${p.PlayerID}" onchange="updateTeamShootoutStats()">
+
+        </span><br>` : ""}
+      <br>`;
     container.appendChild(div);
   });
 }
+
 
 // Function to calculate and update Team Goals and Goals Conceded
 function updateGoals() {
@@ -103,12 +130,61 @@ function updateGoals() {
   document.getElementById("goalsConceded").value = goalsConceded;
 }
 
+
+// SHOOTOUT STATS FOR PLAYERS
+function toggleSO(playerId, prefix) {
+  const label = document.getElementById(`${prefix}_goal_label_${playerId}`);
+  const attemptChecked = document.getElementById(`${prefix}_so_${playerId}`).checked;
+  label.style.display = attemptChecked ? "inline" : "none";
+
+  updateTeamShootoutStats(); // recalculate totals
+}
+
+
+function updateTeamShootoutStats() {
+  const team = document.getElementById("team").value;
+  const opponent = document.getElementById("opponent").value;
+
+  let teamAttempts = 0, teamGoals = 0;
+  let oppAttempts = 0, oppGoals = 0;
+
+  allPlayers.forEach(p => {
+    // Team
+    if (p.Team === team) {
+      const so = document.getElementById("team_so_" + p.PlayerID);
+      const goal = document.getElementById("team_so_goal_" + p.PlayerID);
+      if (so?.checked) {
+        teamAttempts++;
+        if (goal?.checked) teamGoals++;
+      }
+    }
+
+    // Opponent
+    if (opponent !== "Other" && p.Team === opponent) {
+      const so = document.getElementById("opponent_so_" + p.PlayerID);
+      const goal = document.getElementById("opponent_so_goal_" + p.PlayerID);
+      if (so?.checked) {
+        oppAttempts++;
+        if (goal?.checked) oppGoals++;
+      }
+    }
+  });
+
+  document.getElementById("teamShootOutAttempts").value = teamAttempts;
+  document.getElementById("teamSOGoals").value = teamGoals;
+  document.getElementById("oppShootOutAttempts").value = oppAttempts;
+  document.getElementById("oppSOGoals").value = oppGoals;
+}
+
+
 // Populate player inputs for the selected team
 function populatePlayerInputs() {
   const team = document.getElementById("team").value;
   const teamPlayers = allPlayers.filter(p => p.Team === team);
   renderPlayers(teamPlayers, "teamPlayers", "team");
   updateGoals();  // Update Team Goals when players are populated
+  updateTeamShootoutStats();
+
 }
 
 // Handle opponent selection change
@@ -127,6 +203,8 @@ function handleOpponentChange() {
     const players = allPlayers.filter(p => p.Team === opponent);
     renderPlayers(players, "opponentPlayers", "opponent");
     updateGoals();  // Update Goals when opponent is changed
+    updateTeamShootoutStats();
+
   }
 }
 
@@ -192,28 +270,38 @@ async function submitForm(event) {
   // Collect player stats for the team
   const teamPlayers = allPlayers.filter(p => p.Team === team);
   teamPlayers.forEach(p => {
+    const attempt = document.getElementById("team_so_" + p.PlayerID);
+    const goal = document.getElementById("team_so_goal_" + p.PlayerID);
     data.PlayerStats.push({
       PlayerID: p.PlayerID,
       Team: team,
       Opponent: opponentName,
       Goals: document.getElementById("team_g_" + p.PlayerID).value,
       Assists: document.getElementById("team_a_" + p.PlayerID).value,
+      ShootoutAttempts: attempt?.checked ? 1 : 0,
+      ShootoutGoals: (attempt?.checked && goal?.checked) ? 1 : 0
     });
   });
+  
 
   // If opponent is tracked, collect their player stats too
   if (opponentType === "Tracked") {
     const oppPlayers = allPlayers.filter(p => p.Team === opponentName);
     oppPlayers.forEach(p => {
+      const attempt = document.getElementById("opponent_so_" + p.PlayerID);
+      const goal = document.getElementById("opponent_so_goal_" + p.PlayerID);
       data.PlayerStats.push({
         PlayerID: p.PlayerID,
         Team: opponentName,
         Opponent: team,
         Goals: document.getElementById("opponent_g_" + p.PlayerID).value,
-        Assists: document.getElementById("opponent_a_" + p.PlayerID).value
+        Assists: document.getElementById("opponent_a_" + p.PlayerID).value,
+        ShootoutAttempts: attempt?.checked ? 1 : 0,
+        ShootoutGoals: (attempt?.checked && goal?.checked) ? 1 : 0
       });
     });
   }
+  
 
   // Submit the data to Google Sheets
   const params = new URLSearchParams();
