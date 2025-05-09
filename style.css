@@ -257,3 +257,140 @@ body::-webkit-scrollbar {
   color: #fff;
   font-weight: bold;
 }
+
+#totalStats, #avgStats {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.team-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: space-between;
+}
+
+.team-radio-group label {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  border: 2px solid transparent;
+  transition: 0.3s;
+  user-select: none;
+}
+
+/* Hide native radio input */
+.team-radio-group input[type="radio"] {
+  display: none;
+}
+
+/* Highlight selected */
+.team-radio-group input[type="radio"]:checked + span {
+  border-color: #fff;
+  box-shadow: 0 0 5px #fff;
+}
+
+form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  color: #eee;
+}
+
+form h3 {
+  margin-top: 2rem;
+  font-size: 1rem;
+  color: #ccc;
+  border-bottom: 1px solid #333;
+  padding-bottom: 4px;
+  margin-bottom: 0.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #1e1e1e;
+  color: #fff;
+  margin-top: 4px;
+}
+
+#teamPlayers > div,
+#opponentPlayers > div {
+  border: 1px solid #333;
+  background: #181818;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+#shootoutStats,
+#otherTeamContainer {
+  margin-top: 1rem;
+}
+
+button[type="submit"] {
+  width: 100%;
+  background: #4f46e5;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Modern radio buttons styled as pills */
+input[type="radio"] {
+  display: none;
+}
+
+label.radio-group {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+label.radio-group span {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #2d2d2d;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="radio"]:checked + span {
+  background: #4f46e5;
+  color: white;
+}
+
+
+
+/* Add team-specific colors (you can customize this list) */
+label[for="team_BIS"] { background-color: #2463ac; }
+label[for="team_BOS"] { background-color: #23ddf5; }
+label[for="team_CAR"] { background-color: #881f2b; }
+label[for="team_FRE"] { background-color: #cdbf1e; color: #000; }
+label[for="team_GRE"] { background-color: #417505; }
+label[for="team_HST"] { background-color: #d67022; }
+label[for="team_OTT"] { background-color: #efe441; }
+label[for="team_PNX"] { background-color: #2a0c4a; }
+label[for="team_ZDG"] { background-color: #63cc3d; }
+/* Add more teams as needed */

@@ -9,27 +9,18 @@
 <body>
   <h2>Game Summary</h2>
 
-  <div id="gameInfoContainer" class="game-info-box"></div>
-
-  <h3>Player Stats</h3>
-  <div class="table-container">
-    <table id="gamePlayerStatsTable">
-      <thead>
-        <tr>
-          <th>Player</th>
-          <th>Team</th>
-          <th>Goals</th>
-          <th>Assists</th>
-          <th>Plus/Minus</th>
-          <th>SO Attempts</th>
-          <th>SO Goals</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Player stats inserted here -->
-      </tbody>
-    </table>
+  <div id="gameInfoContainer">
+    <div><strong>Date:</strong> <span id="gameDate"></span></div>
+    <div><strong>Team:</strong> <span id="teamName"></span></div>
+    <div><strong>Opponent:</strong> <span id="opponentName"></span></div>
+    <div><strong>Goals Scored:</strong> <span id="teamGoals"></span></div>
+    <div><strong>Goals Conceded:</strong> <span id="goalsConceded"></span></div>
+    <div><strong>Game Type:</strong> <span id="gameType"></span></div>
+    <div><strong>Result:</strong> <span id="gameResult"></span></div>
   </div>
+
+  <div id="playerStatsContainer" style="margin-top: 20px;"></div>
+
 
   <script src="game.js"></script>
 

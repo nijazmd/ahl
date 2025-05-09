@@ -16,8 +16,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   playerStats = statsData;
 
   const aggregated = aggregateStats(allPlayers, playerStats);
+
   renderTable(aggregated);
-  sortTableByColumn(4); // Default: sort by Points
+  sortTableByColumn(4); // Points column
 });
 
 // Combine player info and their stats
@@ -64,13 +65,12 @@ function renderTable(data) {
 }
 
 // Sorting table columns
-function sortTable(colIndex) {
+function sortTable(colIndex, ascending = false) {
   const table = document.getElementById("allPlayersTable");
   const tbody = table.tBodies[0];
   const rows = Array.from(tbody.rows);
 
   const isNumber = !isNaN(rows[0].cells[colIndex].innerText);
-  const ascending = !table.dataset.sortOrder || table.dataset.sortOrder === "desc";
 
   rows.sort((a, b) => {
     const aVal = a.cells[colIndex].innerText;
@@ -80,13 +80,11 @@ function sortTable(colIndex) {
       : (ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal));
   });
 
-  table.dataset.sortOrder = ascending ? "asc" : "desc";
-
   tbody.innerHTML = "";
   rows.forEach(row => tbody.appendChild(row));
 }
 
-// Helper to sort initially by column index
+// Helper to sort initially
 function sortTableByColumn(colIndex) {
-  sortTable(colIndex);
+  sortTable(colIndex, false); // false = descending
 }

@@ -10,29 +10,38 @@
   </head>
   <body>
     <form onsubmit="submitForm(event)">
-      <label>Date: <input type="date" id="date" required></label><br>
+      <label>Date: <input type="date" id="date" required></label>
 
       <label>Team:
         <select id="team" required></select>
-      </label><br>
+      </label>
 
       <label>Opponent:
         <select id="opponent" required onchange="handleOpponentChange()">
           <option value="Other">Other</option>
         </select>
-      </label><br>
+      </label>
 
       <div id="otherTeamContainer" style="display:none;">
         <label>Other Team Name:
           <input type="text" id="otherTeamName" placeholder="Enter opponent team name">
-        </label><br>
+        </label>
       </div>
 
-      <label>Game Type:
-        <input type="radio" name="reg" value="Regular" checked> Regular
-        <input type="radio" name="reg" value="ExtraTime"> Extra Time
-        <input type="radio" name="reg" value="Shootout"> Shootout
-      </label><br>
+      <div>
+        <label class="radio-group">
+          <input type="radio" name="reg" value="Regular" checked>
+          <span>Regular</span>
+        </label>
+        <label class="radio-group">
+          <input type="radio" name="reg" value="ExtraTime">
+          <span>Extra Time</span>
+        </label>
+        <label class="radio-group">
+          <input type="radio" name="reg" value="Shootout">
+          <span>Shootout</span>
+        </label>
+      </div>
       
 
       <h3>Team Player Stats</h3>
@@ -44,32 +53,32 @@
       </div>
 
       <!-- Move Team Goals and Goals Conceded below player stats -->
-      <label>Team Goals: <input type="number" id="teamGoals" value="0" required ></label><br>
-      <label>Goals Conceded: <input type="number" id="goalsConceded" value="0" required ></label><br>
+      <label>Team Goals: <input type="number" id="teamGoals" value="0" required ></label>
+      <label>Goals Conceded: <input type="number" id="goalsConceded" value="0" required ></label>
 
       <div id="shootoutStats" style="display:none;">
         <label>Team Shootout Attempts:
           <input type="number" id="teamShootOutAttempts" value="0">
-        </label><br>
+        </label>
         <label>Team Shootout Goals:
           <input type="number" id="teamSOGoals" value="0">
-        </label><br>
+        </label>
         <label>Opponent Shootout Attempts:
           <input type="number" id="oppShootOutAttempts" value="0">
-        </label><br>
+        </label>
         <label>Opponent Shootout Goals:
           <input type="number" id="oppSOGoals" value="0">
-        </label><br>
+        </label>
       </div>
       
 
       <button type="submit">Submit Game Data</button>
     </form>
     <nav class="bottom-nav">
-      <a href="index.html" class="nav-icon"><i class="fas fa-home"></i></a>
-      <a href="team.html" class="nav-icon"><i class="fas fa-users"></i></a>
-      <a href="players.html" class="nav-icon"><i class="fas fa-hockey-puck"></i></a>
-      <a href="add.html" class="nav-icon"><i class="fas fa-plus-circle"></i></a>
+      <a href="index.html" class="nav-icon">🏠</a>
+      <a href="team.html" class="nav-icon">🛡️</a>
+      <a href="players.html" class="nav-icon">🏒</a>
+      <a href="add.html" class="nav-icon">➕</a>
     </nav>
     
   </body>

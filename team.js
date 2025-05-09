@@ -30,9 +30,10 @@ const selectedTeamFromURL = urlParams.get("teamName");
     const label = document.createElement("label");
     label.htmlFor = id;
     label.innerHTML = `
-      <input type="radio" name="teamRadio" id="${id}" value="${team}" ${selectedTeamFromURL === team ? "checked" : ""}>
-      ${team}
-    `;
+  <input type="radio" name="teamRadio" id="${id}" value="${team}" ${selectedTeamFromURL === team ? "checked" : ""}>
+  <span>${team}</span>
+`;
+
     teamRadioContainer.appendChild(label);
   });
   
