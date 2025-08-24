@@ -68,43 +68,56 @@ function populateTeamDropdowns() {
   });
 }
 
-// Function to render players in the selected team or opponent team
-// function renderPlayers(playersList, containerId, prefix) {
-//   const container = document.getElementById(containerId);
-//   container.innerHTML = "";
-
-//   playersList.forEach(p => {
-//     const div = document.createElement("div");
-//     div.innerHTML = `
-//       <strong>${p.PlayerName}</strong> (ID: ${p.PlayerID})<br>
-//       Goals: <input type="number" value="0" id="${prefix}_g_${p.PlayerID}" oninput="updateGoals()">
-//       Assists: <input type="number"  value="0" id="${prefix}_a_${p.PlayerID}">
-//       <br><br>`;
-//     container.appendChild(div);
-//   });
-// }
 function renderPlayers(playersList, containerId, prefix) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
   const isShootout = document.querySelector('input[name="reg"]:checked')?.value === "Shootout";
 
-  playersList.forEach(p => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <strong>${p.PlayerName}</strong> (ID: ${p.PlayerID})<br>
-      Goals: <input type="number" value="0" id="${prefix}_g_${p.PlayerID}" oninput="updateGoals()">
-      Assists: <input type="number" value="0" id="${prefix}_a_${p.PlayerID}"><br>
-      ${isShootout ? `
-        Shootout Attempt? <input type="checkbox" id="${prefix}_so_${p.PlayerID}" onchange="toggleSO(${p.PlayerID}, '${prefix}')">
-        <span id="${prefix}_goal_label_${p.PlayerID}" style="display:none">
-          Goal Scored? <input type="checkbox" id="${prefix}_so_goal_${p.PlayerID}" onchange="updateTeamShootoutStats()">
+  // Sort alphabetically (case-insensitive)
+  playersList
+    .slice() // avoid mutating original array
+    .sort((a, b) => a.PlayerName.localeCompare(b.PlayerName, undefined, { sensitivity: "base" }))
+    .forEach(p => {
+      const div = document.createElement("div");
 
-        </span><br>` : ""}
-      <br>`;
-    container.appendChild(div);
-  });
+      // searchable class + dataset
+      div.classList.add("player-entry");
+      div.dataset.name = p.PlayerName.toLowerCase();
+
+      div.innerHTML = `
+        <strong>${p.PlayerName}</strong>
+        <div class="dual-input-row">
+          <div class="input-group">
+            <label>Goals</label>
+            <div class="counter">
+              <button type="button" onclick="adjust('${prefix}_g_${p.PlayerID}', -1)">−</button>
+              <input type="number" value="0" id="${prefix}_g_${p.PlayerID}" oninput="updateGoals()">
+              <button type="button" onclick="adjust('${prefix}_g_${p.PlayerID}', 1)">+</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Assists</label>
+            <div class="counter">
+              <button type="button" onclick="adjust('${prefix}_a_${p.PlayerID}', -1)">−</button>
+              <input type="number" value="0" id="${prefix}_a_${p.PlayerID}">
+              <button type="button" onclick="adjust('${prefix}_a_${p.PlayerID}', 1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        ${isShootout ? `
+          Shootout Attempt? <input type="checkbox" id="${prefix}_so_${p.PlayerID}" onchange="toggleSO(${p.PlayerID}, '${prefix}')">
+          <span id="${prefix}_goal_label_${p.PlayerID}" style="display:none">
+            Goal Scored? <input type="checkbox" id="${prefix}_so_goal_${p.PlayerID}" onchange="updateTeamShootoutStats()">
+          </span><br>` : ""}
+        <br>`;
+      container.appendChild(div);
+    });
 }
+
+
 
 
 // Function to calculate and update Team Goals and Goals Conceded
@@ -112,24 +125,38 @@ function updateGoals() {
   const team = document.getElementById("team").value;
   const opponent = document.getElementById("opponent").value;
 
-  // Calculate Team Goals (sum of goals by team players)
+  // Team goals = sum of team player goals
   const teamPlayers = allPlayers.filter(p => p.Team === team);
   const teamGoals = teamPlayers.reduce((sum, p) => {
-    return sum + parseInt(document.getElementById("team_g_" + p.PlayerID).value || 0);
+    const el = document.getElementById("team_g_" + p.PlayerID);
+    return sum + (parseInt(el?.value || 0) || 0);
   }, 0);
   document.getElementById("teamGoals").value = teamGoals;
 
-  // Calculate Goals Conceded (sum of goals by opponent players)
-  let goalsConceded = 0;
+  // Goals Conceded:
+  // If opponent is tracked, auto-sum from their players.
+  // If opponent is "Other", DO NOT overwrite (let the user enter manually).
+  const concededInput = document.getElementById("goalsConceded");
   if (opponent !== "Other") {
     const opponentPlayers = allPlayers.filter(p => p.Team === opponent);
-    goalsConceded = opponentPlayers.reduce((sum, p) => {
-      return sum + parseInt(document.getElementById("opponent_g_" + p.PlayerID).value || 0);
+    const goalsConceded = opponentPlayers.reduce((sum, p) => {
+      const el = document.getElementById("opponent_g_" + p.PlayerID);
+      return sum + (parseInt(el?.value || 0) || 0);
     }, 0);
+    concededInput.value = goalsConceded;
   }
-  document.getElementById("goalsConceded").value = goalsConceded;
 }
 
+
+function filterPlayers(prefix) {
+  const searchTerm = document.getElementById(`${prefix}Search`).value.toLowerCase();
+  const container = document.getElementById(`${prefix}Players`);
+  const players = container.querySelectorAll('.player-entry');
+  players.forEach(p => {
+    const name = p.dataset.name;
+    p.style.display = name.includes(searchTerm) ? "block" : "none";
+  });
+}
 
 // SHOOTOUT STATS FOR PLAYERS
 function toggleSO(playerId, prefix) {
@@ -207,6 +234,16 @@ function handleOpponentChange() {
 
   }
 }
+
+function adjust(inputId, delta) {
+  const input = document.getElementById(inputId);
+  let value = parseInt(input.value) || 0;
+  value += delta;
+  if (value < 0) value = 0;
+  input.value = value;
+  if (inputId.includes("_g_")) updateGoals();  // recalculate team goals if needed
+}
+
 
 // Submit the form with game data
 async function submitForm(event) {
@@ -324,4 +361,7 @@ async function submitForm(event) {
   } catch (err) {
     alert("Error submitting data: " + err.message); // Handle any errors
   }
+
+
 }
+

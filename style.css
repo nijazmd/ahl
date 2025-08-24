@@ -338,7 +338,7 @@ select {
   margin-bottom: 10px;
 }
 
-#shootoutStats,
+
 #otherTeamContainer {
   margin-top: 1rem;
 }
@@ -379,6 +379,157 @@ label.radio-group span {
 input[type="radio"]:checked + span {
   background: #4f46e5;
   color: white;
+}
+
+#teamPlayers, #opponentPlayers {
+  padding: 10px 0;
+}
+
+.totalDisplay {
+  position: fixed;
+  bottom: 44px;
+  left: 0;
+  width: 100%;
+  background: #181818;
+  padding: 0 20px 20px;
+}
+.splitTwo {
+  display: flex;
+}
+.splitTwo label {
+  width: 50%;
+  padding: 0 10px 0 0;
+  margin-bottom: 0;
+}
+
+.input-group {
+  margin: 6px 0;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.counter input[type="number"] {
+  width: 50px;
+  text-align: center;
+}
+
+.counter button {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+  cursor: pointer;
+}
+
+.counter button:hover {
+  background-color: #666;
+}
+
+.dual-input-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.input-group {
+  flex: 1;
+}
+
+:root {
+  /* Adjust if your bottom nav height differs */
+  --bottom-nav-height: 56px;
+  --sticky-cta-padding: 14px;
+  --sticky-cta-z: 999;
+}
+
+/* Make room at the bottom for the sticky footer + nav */
+form {
+  padding-bottom: calc(var(--bottom-nav-height) + 170px); /* safe space for inputs + button */
+}
+
+/* Sticky footer container */
+.sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  padding: var(--sticky-cta-padding);
+  background: rgba(20, 22, 30, 0.92);          /* dark translucent */
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -8px 16px rgba(0,0,0,0.35);
+  z-index: var(--sticky-cta-z);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Layout inside sticky area */
+.sticky-cta .totalDisplay {
+  display: grid;
+  gap: 12px;
+}
+
+.sticky-cta .splitTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.sticky-cta .counter {
+  display: grid;
+  grid-template-columns: auto 36px 1fr 36px;
+  align-items: center;
+  gap: 6px;
+}
+
+.sticky-cta .counter label {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: -2px;
+}
+
+.sticky-cta input[type="number"] {
+  width: 100%;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  padding: 0 10px;
+}
+
+.sticky-cta button[type="button"] {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sticky-cta button[type="submit"] {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: #27c56b;      /* success green */
+  color: #0b0f12;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Keep bottom nav using the same variable for consistency */
+.bottom-nav {
+  height: var(--bottom-nav-height);
 }
 
 
