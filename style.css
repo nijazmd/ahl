@@ -350,7 +350,7 @@ button[type="submit"] {
   padding: 12px;
   border: none;
   border-radius: 8px;
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
   font-size: 1rem;
   cursor: pointer;
 }
@@ -387,7 +387,7 @@ input[type="radio"]:checked + span {
 
 .totalDisplay {
   position: fixed;
-  bottom: 44px;
+  bottom: 28px;
   left: 0;
   width: 100%;
   background: #181818;
