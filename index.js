@@ -1,15 +1,5 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbyZ7XbB0T5xsrPKYJ_3vV5u3-k1hw9j_AK2Tp2cHXqBplsnbEtBMETGx8Vsft-_cfRU/exec";
 
-async function loadGames() {
-  try {
-    const response = await fetch(scriptURL + "?action=loadGames");
-    const games = await response.json();
-    renderStandings(games);
-  } catch (err) {
-    console.error("Failed to load games:", err);
-  }
-}
-
 function renderStandings(games) {
   const standings = {};
 
@@ -78,10 +68,11 @@ function renderStandings(games) {
     const row = `<tr>
       <td>${index + 1}</td>
       <td><a href="team.html?teamName=${teamData.team}" class="team-link">${teamData.team}</a></td>
+      <td>${teamData.games}</td>
       <td>${teamData.points}</td>
+      <td>${teamData.goalDifference}</td>
       <td>${teamData.goals}</td>
       <td>${teamData.conceded}</td>
-      <td>${teamData.goalDifference}</td>
     </tr>`;
     tbody.innerHTML += row;
   });
@@ -127,14 +118,15 @@ function renderLast5Games(games) {
     card.className = "recent-game-card";
 
     card.innerHTML = `
-      <div class="result-tag ${resultClass}">${resultText}</div>
-      <div class="game-info">
+    <div class="game-info">
+    <div class="game-line">🏟️ ${teamName} vs ${opponentName}</div>
+    <div class="result-tag ${resultClass}">${resultText}</div>
         <div class="game-line">📅 ${game.Date}</div>
-        <div class="game-line">🆚 ${opponentName}</div>
         <div class="game-line">🏒 ${teamGoals} - ${goalsConceded}</div>
         <div class="game-link"><a href="game.html?id=${game.GameID}">🔍 View</a></div>
       </div>
     `;
+    
 
     container.appendChild(card);
   });
