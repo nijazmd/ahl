@@ -11,60 +11,104 @@ const POINTS_CONFIG = {
 
 let allPlayers = [];
 let allTeams = [];
+let otherOppSuggestions = []; // from past Games where OpponentType === "Other"
 
 window.onload = async () => {
-  await loadTeamsAndPlayers();
-  populateTeamDropdowns();
+  await loadTeamsPlayersAndOppSuggestions();
+  buildTeamRadios();
+  populateOpponentDropdown();
   populatePlayerInputs();
   handleOpponentChange();
 
-  // Toggle shootout stats visibility
+  // Toggle shootout stats area
   document.querySelectorAll('input[name="reg"]').forEach(radio => {
     radio.addEventListener('change', () => {
       const isShootout = document.querySelector('input[name="reg"]:checked').value === "Shootout";
       document.getElementById("shootoutStats").style.display = isShootout ? "block" : "none";
-      populatePlayerInputs(); // ✅ re-render team
-      handleOpponentChange(); // ✅ re-render opponent
+      populatePlayerInputs();
+      handleOpponentChange();
     });
   });
-  
-  
 
-  // Set today's date as default
+  // Today as default
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("date").value = today;
 
-  document.getElementById("team").addEventListener("change", function() {
-    populatePlayerInputs(); // Re-populate player inputs for the selected home team
-    updateGoals(); // Update Team Goals based on the selected team
+  // When team radio changes
+  document.getElementById("teamRadioContainer").addEventListener("change", () => {
+    populatePlayerInputs();
+    updateGoals();
+  });
+
+  // Search inputs: auto-select text on focus
+  ["teamSearch","opponentSearch"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("focus", e => e.target.select());
+  });
+
+  // Other team input: Title Case as you type + datalist suggestions
+  const otherInp = document.getElementById("otherTeamName");
+  otherInp.addEventListener("input", () => {
+    otherInp.value = toTitleCase(otherInp.value);
   });
 };
 
-// Function to load teams and players data
-function loadTeamsAndPlayers() {
-  return fetch(scriptURL + "?action=loadTeamsAndPlayers")
-    .then(response => response.json())
-    .then(data => {
-      allTeams = data.teams;
-      allPlayers = data.players;
-      console.log("Teams and Players loaded successfully:", allTeams, allPlayers); // TESTING
-    })
-    .catch(error => console.error("Failed to load data:", error));
+function getSelectedTeam() {
+  return document.querySelector('input[name="teamRadio"]:checked')?.value || "";
 }
 
-// Function to populate team dropdowns
-function populateTeamDropdowns() {
-  const teamSelect = document.getElementById("team");
-  const opponentSelect = document.getElementById("opponent");
+async function loadTeamsPlayersAndOppSuggestions() {
+  // teams & players
+  const tp = await fetch(scriptURL + "?action=loadTeamsAndPlayers").then(r=>r.json());
+  allTeams = tp.teams;
+  allPlayers = tp.players;
 
-  teamSelect.innerHTML = "";
-  opponentSelect.innerHTML = '<option value="Other">Other</option>';
+  // build "Other" opponent suggestions from past Games
+  try {
+    const games = await fetch(scriptURL + "?action=loadGames").then(r=>r.json());
+    const set = new Set();
+    games.forEach(g => {
+      if (String(g.OpponentType).toLowerCase() === "other" && g.OpponentTeamName) {
+        set.add(String(g.OpponentTeamName));
+      }
+    });
+    otherOppSuggestions = Array.from(set).sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:"base"}));
+  } catch(e) {
+    otherOppSuggestions = [];
+  }
+}
 
+function buildTeamRadios() {
+  const wrap = document.getElementById("teamRadioContainer");
+  wrap.innerHTML = "";
   allTeams.forEach(team => {
-    const opt1 = new Option(team, team);
-    const opt2 = new Option(team, team);
-    teamSelect.appendChild(opt1);
-    opponentSelect.appendChild(opt2);
+    const id = `team_${team}`;
+    const label = document.createElement("label");
+    label.className = "team-radio";
+    label.setAttribute("for", id);
+    label.innerHTML = `
+      <input type="radio" name="teamRadio" id="${id}" value="${team}">
+      <span>${team}</span>
+    `;
+    wrap.appendChild(label);
+  });
+  // default select first team
+  const first = wrap.querySelector('input[type="radio"]');
+  if (first) first.checked = true;
+}
+
+function populateOpponentDropdown() {
+  const opponentSelect = document.getElementById("opponent");
+  opponentSelect.innerHTML = '<option value="Other">Other</option>';
+  allTeams.forEach(team => opponentSelect.appendChild(new Option(team, team)));
+
+  // Fill datalist for Other suggestions
+  const dl = document.getElementById("otherTeamSuggestions");
+  dl.innerHTML = "";
+  otherOppSuggestions.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    dl.appendChild(opt);
   });
 }
 
@@ -74,102 +118,117 @@ function renderPlayers(playersList, containerId, prefix) {
 
   const isShootout = document.querySelector('input[name="reg"]:checked')?.value === "Shootout";
 
-  // Sort alphabetically (case-insensitive)
   playersList
-    .slice() // avoid mutating original array
+    .slice()
     .sort((a, b) => a.PlayerName.localeCompare(b.PlayerName, undefined, { sensitivity: "base" }))
     .forEach(p => {
       const div = document.createElement("div");
-
-      // searchable class + dataset
       div.classList.add("player-entry");
       div.dataset.name = p.PlayerName.toLowerCase();
 
+      const pid = p.PlayerID;
+
       div.innerHTML = `
-        <strong>${p.PlayerName}</strong>
+        <label style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <input type="checkbox" id="${prefix}_play_${pid}" checked>
+          <strong>${p.PlayerName}</strong>
+        </label>
+
         <div class="dual-input-row">
           <div class="input-group">
             <label>Goals</label>
             <div class="counter">
-              <button type="button" onclick="adjust('${prefix}_g_${p.PlayerID}', -1)">−</button>
-              <input type="number" value="0" id="${prefix}_g_${p.PlayerID}" oninput="updateGoals()">
-              <button type="button" onclick="adjust('${prefix}_g_${p.PlayerID}', 1)">+</button>
+              <button type="button" onclick="adjust('${prefix}_g_${pid}', -1)">−</button>
+              <input type="number" value="0" id="${prefix}_g_${pid}" oninput="updateGoals()">
+              <button type="button" onclick="adjust('${prefix}_g_${pid}', 1)">+</button>
             </div>
           </div>
 
           <div class="input-group">
             <label>Assists</label>
             <div class="counter">
-              <button type="button" onclick="adjust('${prefix}_a_${p.PlayerID}', -1)">−</button>
-              <input type="number" value="0" id="${prefix}_a_${p.PlayerID}">
-              <button type="button" onclick="adjust('${prefix}_a_${p.PlayerID}', 1)">+</button>
+              <button type="button" onclick="adjust('${prefix}_a_${pid}', -1)">−</button>
+              <input type="number" value="0" id="${prefix}_a_${pid}">
+              <button type="button" onclick="adjust('${prefix}_a_${pid}', 1)">+</button>
             </div>
           </div>
         </div>
 
         ${isShootout ? `
-          Shootout Attempt? <input type="checkbox" id="${prefix}_so_${p.PlayerID}" onchange="toggleSO(${p.PlayerID}, '${prefix}')">
-          <span id="${prefix}_goal_label_${p.PlayerID}" style="display:none">
-            Goal Scored? <input type="checkbox" id="${prefix}_so_goal_${p.PlayerID}" onchange="updateTeamShootoutStats()">
+          Shootout Attempt? <input type="checkbox" id="${prefix}_so_${pid}" onchange="toggleSO(${pid}, '${prefix}')">
+          <span id="${prefix}_goal_label_${pid}" style="display:none">
+            Goal Scored? <input type="checkbox" id="${prefix}_so_goal_${pid}" onchange="updateTeamShootoutStats()">
           </span><br>` : ""}
-        <br>`;
+        <br>
+      `;
       container.appendChild(div);
+
+      // If unchecked, zero and disable fields
+      const playCb = div.querySelector(`#${prefix}_play_${pid}`);
+      const fields = ["g","a"].map(k => div.querySelector(`#${prefix}_${k}_${pid}`));
+      playCb.addEventListener("change", () => {
+        const on = playCb.checked;
+        fields.forEach(f => {
+          f.disabled = !on;
+          if (!on) f.value = 0;
+        });
+        updateGoals();
+        updateTeamShootoutStats();
+      });
     });
 }
 
+function getPlayersForTeam(team) {
+  return allPlayers.filter(p => p.Team === team);
+}
 
-
-
-// Function to calculate and update Team Goals and Goals Conceded
+// Team goals = sum of goals for CHECKED players only
 function updateGoals() {
-  const team = document.getElementById("team").value;
+  const team = getSelectedTeam();
   const opponent = document.getElementById("opponent").value;
 
-  // Team goals = sum of team player goals
-  const teamPlayers = allPlayers.filter(p => p.Team === team);
+  const teamPlayers = getPlayersForTeam(team);
   const teamGoals = teamPlayers.reduce((sum, p) => {
-    const el = document.getElementById("team_g_" + p.PlayerID);
-    return sum + (parseInt(el?.value || 0) || 0);
+    const play = document.getElementById(`team_play_${p.PlayerID}`);
+    const el = document.getElementById(`team_g_${p.PlayerID}`);
+    if (play?.checked) return sum + (parseInt(el?.value || 0) || 0);
+    return sum;
   }, 0);
   document.getElementById("teamGoals").value = teamGoals;
 
-  // Goals Conceded:
-  // If opponent is tracked, auto-sum from their players.
-  // If opponent is "Other", DO NOT overwrite (let the user enter manually).
   const concededInput = document.getElementById("goalsConceded");
   if (opponent !== "Other") {
-    const opponentPlayers = allPlayers.filter(p => p.Team === opponent);
+    const opponentPlayers = getPlayersForTeam(opponent);
     const goalsConceded = opponentPlayers.reduce((sum, p) => {
-      const el = document.getElementById("opponent_g_" + p.PlayerID);
-      return sum + (parseInt(el?.value || 0) || 0);
+      const play = document.getElementById(`opponent_play_${p.PlayerID}`);
+      const el = document.getElementById(`opponent_g_${p.PlayerID}`);
+      if (play?.checked) return sum + (parseInt(el?.value || 0) || 0);
+      return sum;
     }, 0);
     concededInput.value = goalsConceded;
   }
 }
 
-
 function filterPlayers(prefix) {
-  const searchTerm = document.getElementById(`${prefix}Search`).value.toLowerCase();
+  const term = document.getElementById(`${prefix}Search`).value.toLowerCase();
   const container = document.getElementById(`${prefix}Players`);
   const players = container.querySelectorAll('.player-entry');
   players.forEach(p => {
     const name = p.dataset.name;
-    p.style.display = name.includes(searchTerm) ? "block" : "none";
+    p.style.display = name.includes(term) ? "block" : "none";
   });
 }
 
-// SHOOTOUT STATS FOR PLAYERS
+// SHOOTOUT
 function toggleSO(playerId, prefix) {
   const label = document.getElementById(`${prefix}_goal_label_${playerId}`);
   const attemptChecked = document.getElementById(`${prefix}_so_${playerId}`).checked;
   label.style.display = attemptChecked ? "inline" : "none";
-
-  updateTeamShootoutStats(); // recalculate totals
+  updateTeamShootoutStats();
 }
 
-
 function updateTeamShootoutStats() {
-  const team = document.getElementById("team").value;
+  const team = getSelectedTeam();
   const opponent = document.getElementById("opponent").value;
 
   let teamAttempts = 0, teamGoals = 0;
@@ -178,6 +237,8 @@ function updateTeamShootoutStats() {
   allPlayers.forEach(p => {
     // Team
     if (p.Team === team) {
+      const play = document.getElementById("team_play_" + p.PlayerID);
+      if (!play?.checked) return;
       const so = document.getElementById("team_so_" + p.PlayerID);
       const goal = document.getElementById("team_so_goal_" + p.PlayerID);
       if (so?.checked) {
@@ -185,9 +246,10 @@ function updateTeamShootoutStats() {
         if (goal?.checked) teamGoals++;
       }
     }
-
     // Opponent
     if (opponent !== "Other" && p.Team === opponent) {
+      const play = document.getElementById("opponent_play_" + p.PlayerID);
+      if (!play?.checked) return;
       const so = document.getElementById("opponent_so_" + p.PlayerID);
       const goal = document.getElementById("opponent_so_goal_" + p.PlayerID);
       if (so?.checked) {
@@ -203,18 +265,15 @@ function updateTeamShootoutStats() {
   document.getElementById("oppSOGoals").value = oppGoals;
 }
 
-
-// Populate player inputs for the selected team
+// Populate player inputs for selected team/opponent
 function populatePlayerInputs() {
-  const team = document.getElementById("team").value;
-  const teamPlayers = allPlayers.filter(p => p.Team === team);
+  const team = getSelectedTeam();
+  const teamPlayers = getPlayersForTeam(team);
   renderPlayers(teamPlayers, "teamPlayers", "team");
-  updateGoals();  // Update Team Goals when players are populated
+  updateGoals();
   updateTeamShootoutStats();
-
 }
 
-// Handle opponent selection change
 function handleOpponentChange() {
   const opponent = document.getElementById("opponent").value;
   const otherContainer = document.getElementById("otherTeamContainer");
@@ -227,29 +286,25 @@ function handleOpponentChange() {
     otherContainer.style.display = "none";
     opponentPlayersContainer.style.display = "block";
 
-    const players = allPlayers.filter(p => p.Team === opponent);
+    const players = getPlayersForTeam(opponent);
     renderPlayers(players, "opponentPlayers", "opponent");
-    updateGoals();  // Update Goals when opponent is changed
+    updateGoals();
     updateTeamShootoutStats();
-
   }
 }
 
 function adjust(inputId, delta) {
   const input = document.getElementById(inputId);
   let value = parseInt(input.value) || 0;
-  value += delta;
-  if (value < 0) value = 0;
+  value = Math.max(0, value + delta);
   input.value = value;
-  if (inputId.includes("_g_")) updateGoals();  // recalculate team goals if needed
+  if (inputId.includes("_g_")) updateGoals();
 }
 
-
-// Submit the form with game data
 async function submitForm(event) {
   event.preventDefault();
 
-  const team = document.getElementById("team").value;
+  const team = getSelectedTeam();
   const opponentValue = document.getElementById("opponent").value;
   const opponentType = opponentValue === "Other" ? "Other" : "Tracked";
   const opponentName = opponentType === "Other"
@@ -259,7 +314,6 @@ async function submitForm(event) {
   const gameType = document.querySelector('input[name="reg"]:checked').value;
   const isShootout = gameType === "Shootout";
 
-  // Initialize data object
   const data = {
     Date: document.getElementById("date").value,
     Team: team,
@@ -275,93 +329,51 @@ async function submitForm(event) {
       oppShootOutAttempts: document.getElementById("oppShootOutAttempts").value,
       oppSOGoals: document.getElementById("oppSOGoals").value
     } : null,
-    PlayerStats: []  // This will store player statistics
+    PlayerStats: []
   };
 
-  // Calculate points based on the game result
-  const teamGoals = parseInt(data.TeamGoals || 0);
-  const goalsConceded = parseInt(data.GoalsConceded || 0);
-  let teamPoints = 0;
-  let opponentPoints = 0;
-
-  if (teamGoals > goalsConceded) {
-    teamPoints = gameType === "Regulation" ? POINTS_CONFIG.RegulationWin :
-                 gameType === "ExtraTime" ? POINTS_CONFIG.ExtratimeWin :
-                 POINTS_CONFIG.ShootoutWin;
-    opponentPoints = gameType === "Regulation" ? POINTS_CONFIG.RegulationLoss :
-                     gameType === "ExtraTime" ? POINTS_CONFIG.ExtratimeLoss :
-                     POINTS_CONFIG.ShootoutLoss;
-  } else if (teamGoals < goalsConceded) {
-    teamPoints = gameType === "Regulation" ? POINTS_CONFIG.RegulationLoss :
-                 gameType === "ExtraTime" ? POINTS_CONFIG.ExtratimeLoss :
-                 POINTS_CONFIG.ShootoutLoss;
-    opponentPoints = gameType === "Regulation" ? POINTS_CONFIG.RegulationWin :
-                     gameType === "ExtraTime" ? POINTS_CONFIG.ExtratimeWin :
-                     POINTS_CONFIG.ShootoutWin;
-  }
-
-  // Add the calculated points to the data object
-  data.TeamPoints = teamPoints;
-  data.OpponentPoints = opponentPoints;
-
-  // Collect player stats for the team
-  const teamPlayers = allPlayers.filter(p => p.Team === team);
-  teamPlayers.forEach(p => {
-    const attempt = document.getElementById("team_so_" + p.PlayerID);
-    const goal = document.getElementById("team_so_goal_" + p.PlayerID);
+  // Collect ONLY checked players
+  const pushIfPlayed = (p, prefix, oppName) => {
+    const played = document.getElementById(`${prefix}_play_${p.PlayerID}`)?.checked;
+    if (!played) return;
+    const attempt = document.getElementById(`${prefix}_so_${p.PlayerID}`);
+    const goal = document.getElementById(`${prefix}_so_goal_${p.PlayerID}`);
     data.PlayerStats.push({
       PlayerID: p.PlayerID,
-      Team: team,
-      Opponent: opponentName,
-      Goals: document.getElementById("team_g_" + p.PlayerID).value,
-      Assists: document.getElementById("team_a_" + p.PlayerID).value,
+      Team: prefix === "team" ? team : oppName,
+      Opponent: prefix === "team" ? oppName : team,
+      Goals: document.getElementById(`${prefix}_g_${p.PlayerID}`).value,
+      Assists: document.getElementById(`${prefix}_a_${p.PlayerID}`).value,
       ShootoutAttempts: attempt?.checked ? 1 : 0,
       ShootoutGoals: (attempt?.checked && goal?.checked) ? 1 : 0
     });
-  });
-  
+  };
 
-  // If opponent is tracked, collect their player stats too
+  const teamPlayers = getPlayersForTeam(team);
+  teamPlayers.forEach(p => pushIfPlayed(p, "team", opponentName));
+
   if (opponentType === "Tracked") {
-    const oppPlayers = allPlayers.filter(p => p.Team === opponentName);
-    oppPlayers.forEach(p => {
-      const attempt = document.getElementById("opponent_so_" + p.PlayerID);
-      const goal = document.getElementById("opponent_so_goal_" + p.PlayerID);
-      data.PlayerStats.push({
-        PlayerID: p.PlayerID,
-        Team: opponentName,
-        Opponent: team,
-        Goals: document.getElementById("opponent_g_" + p.PlayerID).value,
-        Assists: document.getElementById("opponent_a_" + p.PlayerID).value,
-        ShootoutAttempts: attempt?.checked ? 1 : 0,
-        ShootoutGoals: (attempt?.checked && goal?.checked) ? 1 : 0
-      });
-    });
+    const oppPlayers = getPlayersForTeam(opponentName);
+    oppPlayers.forEach(p => pushIfPlayed(p, "opponent", team));
   }
-  
 
-  // Submit the data to Google Sheets
+  // Submit
   const params = new URLSearchParams();
   for (const key in data) {
-    if (key === "PlayerStats" || key === "ShootOutData") {
-      params.append(key, JSON.stringify(data[key]));
-    } else {
-      params.append(key, data[key]);
-    }
+    if (key === "PlayerStats" || key === "ShootOutData") params.append(key, JSON.stringify(data[key]));
+    else params.append(key, data[key]);
   }
 
   try {
-    const response = await fetch(scriptURL, {
-      method: "POST",
-      body: params
-    });
-
+    const response = await fetch(scriptURL, { method: "POST", body: params });
     const text = await response.text();
-    alert(text); // Notify user of success
+    alert(text);
   } catch (err) {
-    alert("Error submitting data: " + err.message); // Handle any errors
+    alert("Error submitting data: " + err.message);
   }
-
-
 }
 
+/* ------- utils ------- */
+function toTitleCase(str){
+  return String(str).replace(/\S+/g, w => w[0]?.toUpperCase() + w.slice(1).toLowerCase());
+}

@@ -5,16 +5,16 @@
     <title>Add Game Data</title>
     <meta meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <link rel="stylesheet" href="style.css"><script src="add.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="add.js" defer></script>
   </head>
   <body>
-    <form onsubmit="submitForm(event)" style="padding-bottom: 160px;">
+    <form onsubmit="submitForm(event)">
       <label>Date: <input type="date" id="date" required></label>
 
-      <label>Team:
-        <select id="team" required></select>
-      </label>
+      <!-- Team: radio pills -->
+      <label>Team:</label>
+      <div id="teamRadioContainer" class="team-radio-group" style="margin-bottom:8px;"></div>
 
       <label>Opponent:
         <select id="opponent" required onchange="handleOpponentChange()">
@@ -24,7 +24,8 @@
 
       <div id="otherTeamContainer" style="display:none;">
         <label>Other Team Name:
-          <input type="text" id="otherTeamName" placeholder="Enter opponent team name">
+          <input type="text" id="otherTeamName" placeholder="Enter opponent team name" list="otherTeamSuggestions">
+          <datalist id="otherTeamSuggestions"></datalist>
         </label>
       </div>
 
@@ -42,63 +43,58 @@
           <span>Shootout</span>
         </label>
       </div>
-      
 
       <h3>Team Player Stats</h3>
       <input type="text" id="teamSearch" placeholder="Search team players..." oninput="filterPlayers('team')">
       <div id="teamPlayers"></div>
-      
+
       <div id="opponentPlayersContainer" style="display:none;">
         <h3>Opponent Player Stats</h3>
         <input type="text" id="opponentSearch" placeholder="Search opponent players..." oninput="filterPlayers('opponent')">
         <div id="opponentPlayers"></div>
       </div>
-      
-      <!-- Sticky footer (fixed above bottom nav) -->
-      <!-- <div class="sticky-cta"> -->
-        <div class="totalDisplay">
-          <div class="splitTwo">
-            <label>Goals
-              <input type="number" id="teamGoals" value="0" required>
-            </label>
-            <div class="counter">
-              <label>Conceded</label>
-              <button type="button" onclick="adjust('goalsConceded', -1)">−</button>
-              <input type="number" id="goalsConceded" value="0" required>
-              <button type="button" onclick="adjust('goalsConceded', 1)">+</button>
-            </div>
+
+      <div class="totalDisplay">
+        <div class="splitTwo">
+          <label>Goals
+            <input type="number" id="teamGoals" value="0" required>
+          </label>
+          <div class="counter">
+            <label>Conceded</label>
+            <button type="button" onclick="adjust('goalsConceded', -1)">−</button>
+            <input type="number" id="goalsConceded" value="0" required>
+            <button type="button" onclick="adjust('goalsConceded', 1)">+</button>
           </div>
-      
-          <div id="shootoutStats" style="display:none;">
-            <div class="splitTwo">
-              <label>Shootout Attempts
-                <input type="number" id="teamShootOutAttempts" value="0">
-              </label>
-              <label>Shootout Goals
-                <input type="number" id="teamSOGoals" value="0">
-              </label>
-            </div>
-            <div class="splitTwo">
-              <label>Opponent Attempts
-                <input type="number" id="oppShootOutAttempts" value="0">
-              </label>
-              <label>Opponent Goals
-                <input type="number" id="oppSOGoals" value="0">
-              </label>
-            </div>
-          </div>
-      
-          <button type="submit">Submit</button>
         </div>
-      <!-- </div> -->
-      
+
+        <div id="shootoutStats" style="display:none;">
+          <div class="splitTwo">
+            <label>Shootout Attempts
+              <input type="number" id="teamShootOutAttempts" value="0">
+            </label>
+            <label>Shootout Goals
+              <input type="number" id="teamSOGoals" value="0">
+            </label>
+          </div>
+          <div class="splitTwo">
+            <label>Opponent Attempts
+              <input type="number" id="oppShootOutAttempts" value="0">
+            </label>
+            <label>Opponent Goals
+              <input type="number" id="oppSOGoals" value="0">
+            </label>
+          </div>
+        </div>
+
+        <button type="submit">Submit</button>
+      </div>
     </form>
+
     <nav class="bottom-nav">
       <a href="index.html" class="nav-icon">🏠</a>
       <a href="team.html" class="nav-icon">🛡️</a>
       <a href="players.html" class="nav-icon">🏒</a>
       <a href="add.html" class="nav-icon">➕</a>
     </nav>
-    
   </body>
 </html>

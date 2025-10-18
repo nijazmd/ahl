@@ -220,7 +220,14 @@ body::-webkit-scrollbar {
   padding: 0 10px 60px;
 }
 
+#recentGamesContainer {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
 .recent-game-card {
+  width: 31%;
+  margin: 1%;
   background: #1e1e2f;
   padding: 10px 12px;
   border-radius: 12px;
@@ -281,6 +288,7 @@ body::-webkit-scrollbar {
   border: 2px solid transparent;
   transition: 0.3s;
   user-select: none;
+  margin: 0;
 }
 
 /* Hide native radio input */
@@ -532,6 +540,18 @@ form {
   height: var(--bottom-nav-height);
 }
 
+/* Make add page radio tabs look like existing team tabs */
+#teamRadioContainer { 
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; justify-content: space-between;
+}
+#teamRadioContainer .team-radio { 
+  padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
+  background-color: #333; color: #fff; border: 2px solid transparent; transition: .3s; user-select: none;
+}
+#teamRadioContainer input[type="radio"] { display: none; }
+#teamRadioContainer input[type="radio"]:checked + span {
+  border-color: #fff; box-shadow: 0 0 5px #fff;
+}
 
 
 /* Add team-specific colors (you can customize this list) */

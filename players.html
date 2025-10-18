@@ -1,29 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>All Players</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>AHL Players</title>
+  <meta meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="players.js" defer></script>
 </head>
 <body>
-  <div class="page-container">
-    <h1>All Players</h1>
-    <div class="table-container">
-        <table id="allPlayersTable">
-            <thead>
-              <tr>
-                <th onclick="sortTable(0)">Player</th>
-                <th onclick="sortTable(1)">Team</th>
-                <th onclick="sortTable(2)">Goals</th>
-                <th onclick="sortTable(3)">Assists</th>
-                <th onclick="sortTable(4)">Points</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-    </div>
+  <h1>Players</h1>
+
+  <!-- Search bar -->
+  <label>
+    <input type="text" id="playerSearch" placeholder="Search by name, team, or position…">
+  </label>
+
+  <div class="table-container">
+    <table id="playersTable">
+      <thead>
+        <tr>
+          <th data-key="name">Player</th>
+          <th data-key="team">Team</th>
+          <th data-key="position">Pos</th>
+          <th data-key="points">Points</th>
+          <th data-key="ptAvg">Pt. Avg.</th>
+          <th data-key="games">G</th>
+          <th data-key="goals">Goals</th>
+          <th data-key="assists">Assists</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <nav class="bottom-nav">
@@ -32,7 +39,5 @@
     <a href="players.html" class="nav-icon">🏒</a>
     <a href="add.html" class="nav-icon">➕</a>
   </nav>
-
-  <script src="players.js"></script>
 </body>
 </html>

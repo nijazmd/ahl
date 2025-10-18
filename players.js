@@ -1,90 +1,157 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbyZ7XbB0T5xsrPKYJ_3vV5u3-k1hw9j_AK2Tp2cHXqBplsnbEtBMETGx8Vsft-_cfRU/exec";
 
-let allPlayers = [];
-let playerStats = [];
+let allPlayers = [];     // from Players sheet
+let playerTotals = [];   // from PlayerTotals sheet
+let mergedRows = [];     // joined + computed
+let currentSort = { key: "points", dir: "desc" }; // default sort
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const [playersRes, statsRes] = await Promise.all([
-    fetch(scriptURL + "?action=loadTeamsAndPlayers"),
-    fetch(scriptURL + "?action=loadPlayerStats")
-  ]);
+document.addEventListener("DOMContentLoaded", init);
 
-  const playersData = await playersRes.json();
-  const statsData = await statsRes.json();
+async function init() {
+  try {
+    const [teamsPlayers, totals] = await Promise.all([
+      fetch(scriptURL + "?action=loadTeamsAndPlayers").then(r=>r.json()),
+      fetch(scriptURL + "?action=loadPlayerTotals").then(r=>r.json()),
+    ]);
 
-  allPlayers = playersData.players;
-  playerStats = statsData;
+    allPlayers = teamsPlayers.players || [];
+    playerTotals = totals || [];
 
-  const aggregated = aggregateStats(allPlayers, playerStats);
+    mergeData();
+    sortRows();
+    renderTable(mergedRows);
 
-  renderTable(aggregated);
-  sortTableByColumn(4); // Points column
-});
+    // Search UX: select all on focus; filter on input using lowercased fields
+    const search = document.getElementById("playerSearch");
+    search.addEventListener("focus", e => e.target.select());
+    search.addEventListener("input", () => {
+      const q = search.value.trim().toLowerCase();
+      const filtered = q
+        ? mergedRows.filter(r =>
+            r.nameLower.includes(q) ||
+            r.teamLower.includes(q) ||
+            r.posLower.includes(q)
+          )
+        : mergedRows;
+      renderTable(filtered);
+    });
 
-// Combine player info and their stats
-function aggregateStats(players, stats) {
-  const statMap = {};
+    // Sort on header click
+    document.querySelectorAll("#playersTable thead th").forEach(th => {
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => {
+        const key = th.getAttribute("data-key");
+        if (!key) return;
+        if (currentSort.key === key) {
+          currentSort.dir = currentSort.dir === "asc" ? "desc" : "asc";
+        } else {
+          currentSort.key = key;
+          // sensible defaults: text asc, numbers desc for Points/Goals/etc
+          currentSort.dir = isNumericKey(key) ? "desc" : "asc";
+        }
+        sortRows();
+        // apply search after sort so visible rows stay filtered
+        const q = search.value.trim().toLowerCase();
+        const filtered = q
+          ? mergedRows.filter(r =>
+              r.nameLower.includes(q) ||
+              r.teamLower.includes(q) ||
+              r.posLower.includes(q)
+            )
+          : mergedRows;
+        renderTable(filtered);
+        paintSortIndicators();
+      });
+    });
+    paintSortIndicators();
+  } catch (err) {
+    console.error("Failed to load players:", err);
+  }
+}
 
-  stats.forEach(row => {
-    const id = row.PlayerID;
-    if (!statMap[id]) {
-      statMap[id] = { goals: 0, assists: 0 };
-    }
-    statMap[id].goals += Number(row.Goals || 0);
-    statMap[id].assists += Number(row.Assists || 0);
-  });
+function isNumericKey(key) {
+  return ["points","ptAvg","games","goals","assists"].includes(key);
+}
 
-  return players.map(p => {
-    const s = statMap[p.PlayerID] || { goals: 0, assists: 0 };
+function mergeData() {
+  const byId = Object.fromEntries(allPlayers.map(p => [String(p.PlayerID), p]));
+
+  mergedRows = playerTotals.map(t => {
+    const pid = String(t.PlayerID);
+    const p = byId[pid] || {};
+    const name = (p.PlayerName || t.PlayerName || "").trim();
+    const team = (p.Team || t.Team || "").trim(); // AHLClub in loader
+    const position = (p.PositionMain || t.PositionMain || "").trim();
+
+    const games   = toNum(t.Games);
+    const goals   = toNum(t.Goals);
+    const assists = toNum(t.Assists);
+    const points  = goals + assists;
+    const ptAvg   = games > 0 ? (points / games) : 0;
+
     return {
-      id: p.PlayerID,
-      name: p.PlayerName,
-      team: p.Team,
-      goals: s.goals,
-      assists: s.assists,
-      points: s.goals + s.assists
+      id: pid,
+      // display fields
+      name, team, position,
+      games, goals, assists, points, ptAvg,
+      // lowercased for search
+      nameLower: name.toLowerCase(),
+      teamLower: team.toLowerCase(),
+      posLower: position.toLowerCase(),
     };
   });
 }
 
-function renderTable(data) {
-  const tbody = document.querySelector("#allPlayersTable tbody");
-  tbody.innerHTML = "";
+function toNum(v) { const n = Number(v || 0); return isNaN(n) ? 0 : n; }
 
-  data.forEach(p => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td><a href="player-single.html?playerId=${p.id}">${p.name}</a></td>
-      <td>${p.team}</td>
-      <td>${p.goals}</td>
-      <td>${p.assists}</td>
-      <td>${p.points}</td>
+function sortRows() {
+  const { key, dir } = currentSort;
+  mergedRows.sort((a, b) => {
+    const av = a[key];
+    const bv = b[key];
+    if (isNumericKey(key)) {
+      const diff = (bv - av);
+      return dir === "asc" ? -diff : diff;
+    } else {
+      const diff = String(av).localeCompare(String(bv), undefined, { sensitivity: "base" });
+      return dir === "asc" ? diff : -diff;
+    }
+  });
+}
+
+function renderTable(rows) {
+  const tbody = document.querySelector("#playersTable tbody");
+  tbody.innerHTML = "";
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><a href="player-single.html?playerId=${encodeURIComponent(r.id)}">${escapeHtml(r.name)}</a></td>
+      <td>${escapeHtml(r.team)}</td>
+      <td>${escapeHtml(r.position || "-")}</td>
+      <td>${r.points}</td>
+      <td>${r.ptAvg.toFixed(2)}</td>
+      <td>${r.games}</td>
+      <td>${r.goals}</td>
+      <td>${r.assists}</td>
     `;
-    tbody.appendChild(row);
+    tbody.appendChild(tr);
   });
 }
 
-// Sorting table columns
-function sortTable(colIndex, ascending = false) {
-  const table = document.getElementById("allPlayersTable");
-  const tbody = table.tBodies[0];
-  const rows = Array.from(tbody.rows);
-
-  const isNumber = !isNaN(rows[0].cells[colIndex].innerText);
-
-  rows.sort((a, b) => {
-    const aVal = a.cells[colIndex].innerText;
-    const bVal = b.cells[colIndex].innerText;
-    return isNumber
-      ? (ascending ? aVal - bVal : bVal - aVal)
-      : (ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal));
+function paintSortIndicators() {
+  document.querySelectorAll("#playersTable thead th").forEach(th => {
+    const key = th.getAttribute("data-key");
+    if (!key) return;
+    const isActive = key === currentSort.key;
+    const arrow = isActive ? (currentSort.dir === "asc" ? " ▲" : " ▼") : "";
+    th.textContent = th.textContent.replace(/\s[▲▼]$/,''); // strip old
+    th.textContent = th.textContent.split(" ")[0] + arrow; // re-apply
   });
-
-  tbody.innerHTML = "";
-  rows.forEach(row => tbody.appendChild(row));
 }
 
-// Helper to sort initially
-function sortTableByColumn(colIndex) {
-  sortTable(colIndex, false); // false = descending
+// Small helper to avoid accidental HTML injection from names
+function escapeHtml(s) {
+  return String(s || "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
 }

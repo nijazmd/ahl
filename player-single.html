@@ -4,46 +4,43 @@
   <meta charset="UTF-8">
   <meta meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <link rel="stylesheet" href="style.css"><title>Player Details</title>
+  <link rel="stylesheet" href="style.css">
+  <title>Player Details</title>
 </head>
 <body>
 
-  <h2>
-    <div id="playerName"></div> <!-- Player Name -->
-  </h2>
-  
-  <div id="teamName"></div> <!-- Team Name -->
-  
-  <div id="playerPosition"></div> <!-- Position -->
-  
+  <!-- Header -->
+  <div class="player-name" id="playerName"></div>
+  <div class="team-name" id="teamName"></div>
+  <div class="player-position" id="playerPosition"></div>
+
+  <!-- Player meta -->
+  <div class="stat-grid" id="playerMeta"></div>
+
   <h3>Total Stats</h3>
-  <div id="totalStats"></div>
+  <div id="totalStats" class="stat-grid"></div>
+
+  <div id="gkStatsSection" style="display:none;">
+    <h3>Goalkeeper Metrics</h3>
+    <div id="gkStats" class="stat-grid"></div>
+  </div>
 
   <h3>Home Game Stats</h3>
-<div id="homeStats" class="split-box"></div>
+  <div id="homeStats" class="split-box"></div>
 
-<h3>Away Game Stats</h3>
-<div id="awayStats" class="split-box"></div>
+  <h3>Away Game Stats</h3>
+  <div id="awayStats" class="split-box"></div>
 
-  
-  <h3>Averages</h3>
-  <div id="avgStats"></div>
-  
   <h3>Recent Games</h3>
-  <div id="recentGames"></div>
-  
+  <div id="recentGames" class="recent-games-grid"></div>
 
-  
-  <!-- Reserved for future per-opponent breakdown or graph -->
-
-  <script src="player-single.js"></script>
   <nav class="bottom-nav">
     <a href="index.html" class="nav-icon">🏠</a>
     <a href="team.html" class="nav-icon">🛡️</a>
     <a href="players.html" class="nav-icon">🏒</a>
     <a href="add.html" class="nav-icon">➕</a>
   </nav>
-  
+
+  <script src="player-single.js"></script>
 </body>
 </html>
